@@ -1,12 +1,22 @@
+# Root safety gitignore
 node_modules/
-dist/
+*/node_modules/
 .env
 .env.*
-!.env.example
+*/.env
+*/.env.*
+!*.env.example
+!*/.env.example
 
-.vscode/
-.idea/
+# Build outputs
+dist/
+*/dist/
+uploads/
+*/uploads/
 
+# Logs & temporary files
 *.log
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
