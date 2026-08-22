@@ -3,7 +3,8 @@
  * Reads VITE_API_URL from frontend/.env with fallback to http://localhost:5000
  */
 
-const RAW_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const RAW_API_URL =
+  import.meta.env.VITE_API_URL || 'https://laptop-shop-backend.vercel.app';
 
 // Ensure the base URL ends with /api for all REST endpoints
 export const API_BASE_URL = RAW_API_URL.endsWith('/api')
