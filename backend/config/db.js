@@ -21,12 +21,32 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-export const connectDB = async () => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
+// Find any valid MongoDB URI variable name from environment
+export const getMongoUri = () => {
+  const possibleKeys = [
+    'MONGODB_URI',
+    'MONGO_URI',
+    'MONGODB_URL',
+    'MONGO_URL',
+    'DATABASE_URL',
+    'DB_URI'
+  ];
 
-  if (!uri || uri.includes('your_mongodb_connection_string') || uri.trim() === '') {
+  for (const key of possibleKeys) {
+    const val = process.env[key];
+    if (val && !val.includes('your_mongodb_connection_string') && val.trim() !== '') {
+      return { uri: val.trim(), keyName: key };
+    }
+  }
+  return { uri: null, keyName: null };
+};
+
+export const connectDB = async () => {
+  const { uri, keyName } = getMongoUri();
+
+  if (!uri) {
     lastConnectionError =
-      'MONGODB_URI is not set in Vercel Environment Variables (or is set to a placeholder).';
+      'No MongoDB URI found in environment variables. Set MONGODB_URI or MONGO_URI in your Vercel Backend Project settings.';
     console.warn(`[MongoDB] ${lastConnectionError}`);
     return false;
   }
@@ -38,8 +58,8 @@ export const connectDB = async () => {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000
+      serverSelectionTimeoutMS: 6000,
+      connectTimeoutMS: 6000
     };
 
     cached.promise = mongoose
@@ -47,7 +67,7 @@ export const connectDB = async () => {
       .then((mongooseInstance) => {
         lastConnectionError = null;
         console.log(
-          `[MongoDB] Connected successfully to host: ${mongooseInstance.connection.host}, database: ${mongooseInstance.connection.name}`
+          `[MongoDB] Connected successfully (using ${keyName}) to host: ${mongooseInstance.connection.host}, database: ${mongooseInstance.connection.name}`
         );
         return mongooseInstance;
       })
@@ -75,22 +95,33 @@ export const isDBConnected = () => {
 };
 
 export const getDBDiagnostic = () => {
-  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
-  const isConfigured = Boolean(
-    uri && !uri.includes('your_mongodb_connection_string') && uri.trim() !== ''
-  );
+  const { uri, keyName } = getMongoUri();
+  const isConfigured = Boolean(uri);
   let sanitizedHost = 'Not Set';
+
   if (isConfigured) {
     try {
       const parts = uri.split('@');
-      sanitizedHost = parts.length > 1 ? parts[1].split('/')[0] : 'Direct URI (Hidden)';
+      sanitizedHost = parts.length > 1 ? parts[1].split('/')[0] : 'Direct URI';
     } catch (e) {
       sanitizedHost = 'Configured';
     }
   }
 
+  // Scan for any DB keys present in env
+  const detectedKeys = [
+    'MONGODB_URI',
+    'MONGO_URI',
+    'MONGODB_URL',
+    'MONGO_URL',
+    'DATABASE_URL',
+    'DB_URI'
+  ].filter((k) => Boolean(process.env[k]));
+
   return {
     isConfigured,
+    detectedKeys,
+    activeKeyUsed: keyName || 'none',
     sanitizedHost,
     isConnected: mongoose.connection.readyState === 1,
     connectionState:
