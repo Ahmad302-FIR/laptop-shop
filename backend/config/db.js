@@ -21,7 +21,7 @@ if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
 }
 
-// Find any valid MongoDB URI variable name from environment
+// Find and sanitize any valid MongoDB URI variable name from environment
 export const getMongoUri = () => {
   const possibleKeys = [
     'MONGODB_URI',
@@ -33,9 +33,23 @@ export const getMongoUri = () => {
   ];
 
   for (const key of possibleKeys) {
-    const val = process.env[key];
-    if (val && !val.includes('your_mongodb_connection_string') && val.trim() !== '') {
-      return { uri: val.trim(), keyName: key };
+    let val = process.env[key];
+    if (val) {
+      val = val.trim();
+      // Remove any surrounding single/double quotes if pasted with quotes
+      val = val.replace(/^["']|["']$/g, '');
+
+      if (!val.includes('your_mongodb_connection_string') && val !== '') {
+        // Ensure database name is explicitly present
+        if (val.includes('.mongodb.net/?')) {
+          val = val.replace('.mongodb.net/?', '.mongodb.net/laptop_shop?');
+        } else if (val.endsWith('.mongodb.net/')) {
+          val = val + 'laptop_shop?retryWrites=true&w=majority';
+        } else if (val.endsWith('.mongodb.net')) {
+          val = val + '/laptop_shop?retryWrites=true&w=majority';
+        }
+        return { uri: val, keyName: key };
+      }
     }
   }
   return { uri: null, keyName: null };
@@ -108,7 +122,6 @@ export const getDBDiagnostic = () => {
     }
   }
 
-  // Scan for any DB keys present in env
   const detectedKeys = [
     'MONGODB_URI',
     'MONGO_URI',
