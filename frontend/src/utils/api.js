@@ -1,10 +1,10 @@
 /**
  * Centralized API configuration and client dispatcher
- * Reads VITE_API_URL from frontend/.env with fallback to http://localhost:5000
+ * Reads VITE_API_URL from environment with fallback to live backend
  */
 
 const RAW_API_URL =
-  import.meta.env.VITE_API_URL || 'https://laptop-shop-backend.vercel.app';
+  import.meta.env.VITE_API_URL || 'https://laptop-shop-hq27.vercel.app';
 
 // Ensure the base URL ends with /api for all REST endpoints
 export const API_BASE_URL = RAW_API_URL.endsWith('/api')
@@ -58,7 +58,7 @@ export const fetchApi = async (endpoint, options = {}) => {
     return data;
   } catch (error) {
     if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      error.message = `Unable to connect to backend server at ${API_BASE_URL}. Ensure backend is running on port 5000.`;
+      error.message = `Unable to connect to backend server at ${API_BASE_URL}. Ensure backend is running.`;
     }
     throw error;
   }
