@@ -10,7 +10,7 @@ export const ProductsProvider = ({ children }) => {
   const [error, setError] = useState(null);
   const [isBackendConnected, setIsBackendConnected] = useState(false);
 
-  // Fetch all products from API
+  // Fetch all products from API (GET /api/products)
   const fetchProducts = useCallback(async (filters = {}) => {
     try {
       setLoading(true);
@@ -27,17 +27,14 @@ export const ProductsProvider = ({ children }) => {
       const qs = queryParams.toString() ? `?${queryParams.toString()}` : '';
       const res = await apiClient.get(`/products${qs}`);
 
-      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
-        setProducts(res.data);
-        setIsBackendConnected(true);
-      } else if (res.success && Array.isArray(res.data)) {
+      if (res && res.success && Array.isArray(res.data)) {
         setProducts(res.data);
         setIsBackendConnected(true);
       }
     } catch (err) {
-      console.warn('Backend API connection notice (using stored products catalog):', err.message);
+      console.warn('[Products API Notice]:', err.message);
       setIsBackendConnected(false);
-      // Keep existing products or fallback
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -47,197 +44,136 @@ export const ProductsProvider = ({ children }) => {
     fetchProducts();
   }, [fetchProducts]);
 
-  const parseDataForState = (data) => {
-    if (typeof FormData !== 'undefined' && data instanceof FormData) {
-      const obj = {};
-      const newFiles = [];
-      for (const [key, val] of data.entries()) {
-        if (key === 'existingImages') {
-          try {
-            obj.images = JSON.parse(val);
-          } catch (e) {
-            obj.images = [val];
-          }
-        } else if (key === 'keyFeatures') {
-          try {
-            obj.keyFeatures = JSON.parse(val);
-          } catch (e) {
-            obj.keyFeatures = val.split(',').map((s) => s.trim()).filter(Boolean);
-          }
-        } else if (key === 'images') {
-          if (typeof val === 'object' && val.name) {
-            try {
-              newFiles.push(URL.createObjectURL(val));
-            } catch (e) {}
-          } else if (typeof val === 'string') {
-            newFiles.push(val);
-          }
-        } else if (key === 'price' || key === 'oldPrice') {
-          obj[key] = val ? Number(val) : null;
-        } else if (key === 'featured' || key === 'onSale' || key === 'charger') {
-          obj[key] = val === true || val === 'true' || val === '1';
-        } else {
-          obj[key] = val;
-        }
-      }
-      if (!obj.images) obj.images = [];
-      obj.images = [...obj.images, ...newFiles];
-      if (obj.images.length === 0) {
-        obj.images = [
-          'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'
-        ];
-      }
-      return obj;
-    }
-    return data;
-  };
-
-  // Create Product
+  // Create Product (POST /api/products)
   const addProduct = async (productData) => {
     try {
       const res = await apiClient.post('/products', productData);
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) => [res.data, ...prev]);
         return { success: true, product: res.data };
       }
-      return { success: false, message: res.message };
-    } catch (err) {
-      // Fallback local update if offline
-      const parsed = parseDataForState(productData);
-      const mockId = String(Date.now());
-      const localProduct = { id: mockId, _id: mockId, ...parsed, dateAdded: new Date() };
-      setProducts((prev) => [localProduct, ...prev]);
       return {
-        success: true,
-        product: localProduct,
-        notice: 'Saved locally'
+        success: false,
+        message: res?.message || 'Failed to create product in database'
+      };
+    } catch (err) {
+      console.error('[Add Product Error]:', err);
+      return {
+        success: false,
+        message: err.message || 'Failed to save product. Check MongoDB connection and Cloudinary keys.'
       };
     }
   };
 
-  // Update Product
+  // Update Product (PUT /api/products/:id)
   const updateProduct = async (id, updates) => {
     try {
       const res = await apiClient.put(`/products/${id}`, updates);
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id || p._id === id ? res.data : p))
         );
         return { success: true, product: res.data };
       }
-      return { success: false, message: res.message };
+      return {
+        success: false,
+        message: res?.message || 'Failed to update product in database'
+      };
     } catch (err) {
-      // Fallback local update
-      const parsed = parseDataForState(updates);
-      setProducts((prev) =>
-        prev.map((p) => (p.id === id || p._id === id ? { ...p, ...parsed } : p))
-      );
-      return { success: true, notice: 'Updated locally' };
+      console.error('[Update Product Error]:', err);
+      return {
+        success: false,
+        message: err.message || 'Failed to update product in database'
+      };
     }
   };
 
-  // Delete Product
+  // Delete Product (DELETE /api/products/:id)
   const deleteProduct = async (id) => {
     try {
       const res = await apiClient.delete(`/products/${id}`);
-      setProducts((prev) => prev.filter((p) => p.id !== id && p._id !== id));
-      return { success: true, message: res.message || 'Product deleted' };
+      if (res && res.success) {
+        setProducts((prev) => prev.filter((p) => p.id !== id && p._id !== id));
+        return { success: true, message: res.message || 'Product deleted' };
+      }
+      return {
+        success: false,
+        message: res?.message || 'Failed to delete product from database'
+      };
     } catch (err) {
-      setProducts((prev) => prev.filter((p) => p.id !== id && p._id !== id));
-      return { success: true, notice: 'Deleted locally' };
+      console.error('[Delete Product Error]:', err);
+      return {
+        success: false,
+        message: err.message || 'Failed to delete product from database'
+      };
     }
   };
 
-  // Toggle Stock Status
+  // Toggle Stock Status (PATCH /api/products/:id/stock)
   const toggleStock = async (id, newStock) => {
     try {
       const res = await apiClient.patch(`/products/${id}/stock`, { stock: newStock });
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id || p._id === id ? res.data : p))
         );
         return { success: true, product: res.data };
       }
+      return { success: false, message: res?.message };
     } catch (err) {
-      setProducts((prev) =>
-        prev.map((p) => {
-          if (p.id === id || p._id === id) {
-            const stock = newStock || (p.stock === 'available' ? 'sold' : 'available');
-            return { ...p, stock };
-          }
-          return p;
-        })
-      );
-      return { success: true };
+      console.error('[Toggle Stock Error]:', err);
+      return { success: false, message: err.message };
     }
   };
 
-  // Update Price & Sale
+  // Update Price & Sale (PATCH /api/products/:id/price)
   const updatePrice = async (id, price, oldPrice, onSale) => {
     try {
       const res = await apiClient.patch(`/products/${id}/price`, { price, oldPrice, onSale });
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id || p._id === id ? res.data : p))
         );
         return { success: true, product: res.data };
       }
+      return { success: false, message: res?.message };
     } catch (err) {
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === id || p._id === id
-            ? { ...p, price: Number(price), oldPrice: oldPrice ? Number(oldPrice) : null, onSale: Boolean(onSale) }
-            : p
-        )
-      );
-      return { success: true };
+      console.error('[Update Price Error]:', err);
+      return { success: false, message: err.message };
     }
   };
 
-  // Toggle Sale
+  // Toggle Sale (PATCH /api/products/:id/sale)
   const toggleSale = async (id, onSale, oldPrice) => {
     try {
       const res = await apiClient.patch(`/products/${id}/sale`, { onSale, oldPrice });
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id || p._id === id ? res.data : p))
         );
         return { success: true, product: res.data };
       }
+      return { success: false, message: res?.message };
     } catch (err) {
-      setProducts((prev) =>
-        prev.map((p) => {
-          if (p.id === id || p._id === id) {
-            const isSale = onSale !== undefined ? onSale : !p.onSale;
-            return { ...p, onSale: isSale, oldPrice: oldPrice !== undefined ? oldPrice : p.oldPrice };
-          }
-          return p;
-        })
-      );
-      return { success: true };
+      console.error('[Toggle Sale Error]:', err);
+      return { success: false, message: err.message };
     }
   };
 
-  // Toggle Featured
+  // Toggle Featured (PATCH /api/products/:id/featured)
   const toggleFeatured = async (id, featured) => {
     try {
       const res = await apiClient.patch(`/products/${id}/featured`, { featured });
-      if (res.success && res.data) {
+      if (res && res.success && res.data) {
         setProducts((prev) =>
           prev.map((p) => (p.id === id || p._id === id ? res.data : p))
         );
         return { success: true, product: res.data };
       }
+      return { success: false, message: res?.message };
     } catch (err) {
-      setProducts((prev) =>
-        prev.map((p) => {
-          if (p.id === id || p._id === id) {
-            return { ...p, featured: featured !== undefined ? featured : !p.featured };
-          }
-          return p;
-        })
-      );
-      return { success: true };
+      console.error('[Toggle Featured Error]:', err);
+      return { success: false, message: err.message };
     }
   };
 

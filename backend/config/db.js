@@ -1,4 +1,11 @@
 import mongoose from 'mongoose';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 /**
  * Global cached connection for Serverless environments (Vercel/AWS Lambda)
@@ -11,10 +18,10 @@ if (!cached) {
 }
 
 export const connectDB = async () => {
-  const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-  if (!uri || uri === 'your_mongodb_connection_string_here') {
-    console.warn('[MongoDB] MONGO_URI is not set in Environment Variables.');
+  if (!uri || uri.includes('your_mongodb_connection_string') || uri.trim() === '') {
+    console.warn('[MongoDB] WARNING: MONGODB_URI / MONGO_URI is not set or contains placeholder in environment variables.');
     return false;
   }
 
@@ -25,18 +32,21 @@ export const connectDB = async () => {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 8000,
-      connectTimeoutMS: 8000
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000
     };
 
-    cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
-      console.log(`[MongoDB] Connected: ${mongooseInstance.connection.host}/${mongooseInstance.connection.name}`);
-      return mongooseInstance;
-    }).catch((err) => {
-      cached.promise = null;
-      console.warn(`[MongoDB] Connection error: ${err.message}`);
-      return false;
-    });
+    cached.promise = mongoose
+      .connect(uri, opts)
+      .then((mongooseInstance) => {
+        console.log(`[MongoDB] Connected successfully to host: ${mongooseInstance.connection.host}, database: ${mongooseInstance.connection.name}`);
+        return mongooseInstance;
+      })
+      .catch((err) => {
+        cached.promise = null;
+        console.error(`[MongoDB] Connection error: ${err.message}`);
+        return false;
+      });
   }
 
   try {
@@ -44,6 +54,7 @@ export const connectDB = async () => {
     return cached.conn;
   } catch (e) {
     cached.promise = null;
+    console.error(`[MongoDB] Await connection failed: ${e.message}`);
     return false;
   }
 };
@@ -51,3 +62,5 @@ export const connectDB = async () => {
 export const isDBConnected = () => {
   return mongoose.connection.readyState === 1;
 };
+
+export default connectDB;

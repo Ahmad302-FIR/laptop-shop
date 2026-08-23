@@ -1,23 +1,7 @@
 import multer from 'multer';
-import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
 import { isCloudinaryConfigured, uploadBufferToCloudinary } from '../config/cloudinary.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const localUploadsDir = path.join(__dirname, '..', 'uploads');
-
-// Ensure local uploads directory exists for offline fallback
-if (!fs.existsSync(localUploadsDir)) {
-  try {
-    fs.mkdirSync(localUploadsDir, { recursive: true });
-  } catch (err) {
-    // Ignore in read-only environments
-  }
-}
-
-// Memory storage to hold file buffers for Cloudinary stream upload
+// Use in-memory storage so buffers can be streamed directly to Cloudinary
 const storage = multer.memoryStorage();
 
 // File filter for images only
@@ -84,7 +68,7 @@ export const uploadProductImages = (req, res, next) => {
 };
 
 /**
- * Process uploaded image buffers and upload to Cloudinary (or local fallback)
+ * Process uploaded image buffers and upload directly to Cloudinary
  */
 export const processCloudinaryUploads = async (req, res, next) => {
   try {
@@ -97,7 +81,6 @@ export const processCloudinaryUploads = async (req, res, next) => {
         try {
           existingImages = JSON.parse(req.body.existingImages);
         } catch (e) {
-          // If it's a single raw URL string
           existingImages = [req.body.existingImages];
         }
       } else if (Array.isArray(req.body.existingImages)) {
@@ -105,39 +88,42 @@ export const processCloudinaryUploads = async (req, res, next) => {
       }
     }
 
-    // Process new files if uploaded
+    // Process new image files if uploaded
     if (req.files && Array.isArray(req.files) && req.files.length > 0) {
-      const cloudinaryAvailable = isCloudinaryConfigured();
+      if (!isCloudinaryConfigured()) {
+        console.error('[Upload Error] Attempted image upload without Cloudinary credentials configured.');
+        return res.status(400).json({
+          success: false,
+          message:
+            'Cloudinary credentials are not configured on the server. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in backend environment variables.'
+        });
+      }
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
+        try {
+          const uploadResult = await uploadBufferToCloudinary(file.buffer, {
+            folder: 'laptop-shop-products'
+          });
 
-        if (cloudinaryAvailable) {
-          try {
-            const uploadResult = await uploadBufferToCloudinary(file.buffer, {
-              folder: 'laptop-shop-products'
-            });
-            if (uploadResult && uploadResult.secure_url) {
-              newImageUrls.push(uploadResult.secure_url);
-            }
-          } catch (cloudErr) {
-            console.error('Cloudinary upload error:', cloudErr.message);
-            // Fallback to local file if Cloudinary API fails
-            const localUrl = saveFileLocally(file, req);
-            newImageUrls.push(localUrl);
+          if (uploadResult && uploadResult.secure_url) {
+            newImageUrls.push(uploadResult.secure_url);
+          } else {
+            throw new Error('Cloudinary response did not contain secure_url');
           }
-        } else {
-          // Local storage fallback for development without Cloudinary credentials
-          const localUrl = saveFileLocally(file, req);
-          newImageUrls.push(localUrl);
+        } catch (cloudErr) {
+          console.error(`[Cloudinary Upload Failed for file ${file.originalname}]:`, cloudErr.message);
+          return res.status(500).json({
+            success: false,
+            message: `Failed to upload image "${file.originalname}" to Cloudinary: ${cloudErr.message}`
+          });
         }
       }
     }
 
-    // Combine existing images with newly uploaded images
+    // Combine existing images with newly uploaded Cloudinary image URLs
     const combinedImages = [...existingImages, ...newImageUrls];
 
-    // If new images or existingImages were provided, update req.body.images
     if (combinedImages.length > 0) {
       req.body.images = combinedImages;
     } else if (req.body.images && typeof req.body.images === 'string') {
@@ -148,7 +134,7 @@ export const processCloudinaryUploads = async (req, res, next) => {
       }
     }
 
-    // Parse keyFeatures if it was sent as JSON string in FormData
+    // Parse keyFeatures if sent as JSON string in FormData
     if (req.body.keyFeatures && typeof req.body.keyFeatures === 'string') {
       try {
         req.body.keyFeatures = JSON.parse(req.body.keyFeatures);
@@ -157,8 +143,10 @@ export const processCloudinaryUploads = async (req, res, next) => {
       }
     }
 
-    // Convert booleans and numeric fields sent via FormData
-    if (req.body.price !== undefined) req.body.price = Number(req.body.price);
+    // Parse and cast numeric and boolean fields from FormData
+    if (req.body.price !== undefined && req.body.price !== '') {
+      req.body.price = Number(req.body.price);
+    }
     if (req.body.oldPrice !== undefined && req.body.oldPrice !== '') {
       req.body.oldPrice = Number(req.body.oldPrice);
     } else if (req.body.oldPrice === '') {
@@ -184,24 +172,3 @@ export const processCloudinaryUploads = async (req, res, next) => {
     });
   }
 };
-
-/**
- * Local file fallback helper
- */
-function saveFileLocally(file, req) {
-  try {
-    const ext = path.extname(file.originalname) || '.jpg';
-    const filename = `product-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
-    const filePath = path.join(localUploadsDir, filename);
-
-    fs.writeFileSync(filePath, file.buffer);
-
-    const protocol = req.protocol || 'http';
-    const host = req.get('host') || 'localhost:5000';
-    return `${protocol}://${host}/uploads/${filename}`;
-  } catch (err) {
-    console.warn('Local disk save fallback error:', err.message);
-    // Return base64 as ultimate fallback
-    return `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
-  }
-}

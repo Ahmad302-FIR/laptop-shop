@@ -25,15 +25,15 @@ export const AdminDashboardPage = () => {
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [quickSaleProduct, setQuickSaleProduct] = useState(null);
 
-  // Filter state synced with stats cards
+  // Filters
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   // Toast feedback
   const [toastMessage, setToastMessage] = useState('');
   const [isToastVisible, setIsToastVisible] = useState(false);
 
-  const showToast = (msg) => {
-    setToastMessage(msg);
+  const showToast = (message) => {
+    setToastMessage(message);
     setIsToastVisible(true);
     setTimeout(() => setIsToastVisible(false), 3500);
   };
@@ -53,37 +53,57 @@ export const AdminDashboardPage = () => {
     if (editingProduct) {
       const id = editingProduct.id || editingProduct._id;
       const res = await updateProduct(id, payload);
-      if (res.success) {
+      if (res && res.success) {
         showToast(`✅ Product updated successfully!`);
+      } else {
+        showToast(`❌ ${res?.message || 'Failed to update product'}`);
+        throw new Error(res?.message || 'Failed to update product');
       }
     } else {
       const res = await addProduct(payload);
-      if (res.success) {
+      if (res && res.success) {
         showToast(`🎉 Product added to live inventory!`);
+      } else {
+        showToast(`❌ ${res?.message || 'Failed to add product'}`);
+        throw new Error(res?.message || 'Failed to add product');
       }
     }
   };
 
   const handleDeleteConfirm = async (id) => {
     const res = await deleteProduct(id);
-    if (res.success) {
+    if (res && res.success) {
       showToast('🗑️ Product removed from catalog.');
+    } else {
+      showToast(`❌ ${res?.message || 'Failed to delete product'}`);
     }
   };
 
   const handleToggleStock = async (id, newStock) => {
-    await toggleStock(id, newStock);
-    showToast(`🔄 Stock updated to ${newStock === 'sold' ? 'SOLD OUT' : 'IN STOCK'}`);
+    const res = await toggleStock(id, newStock);
+    if (res && res.success) {
+      showToast(`🔄 Stock updated to ${newStock === 'sold' ? 'SOLD OUT' : 'IN STOCK'}`);
+    } else {
+      showToast(`❌ Failed to update stock`);
+    }
   };
 
   const handleToggleFeatured = async (id, featured) => {
-    await toggleFeatured(id, featured);
-    showToast(featured ? '⭐ Added to Featured spotlights' : 'Removed from Featured');
+    const res = await toggleFeatured(id, featured);
+    if (res && res.success) {
+      showToast(featured ? '⭐ Added to Featured spotlights' : 'Removed from Featured');
+    } else {
+      showToast(`❌ Failed to update featured status`);
+    }
   };
 
   const handleSaveQuickSale = async (id, price, oldPrice, onSale) => {
-    await updatePrice(id, price, oldPrice, onSale);
-    showToast(`🏷️ Sale price saved: Rs. ${price.toLocaleString('en-PK')}`);
+    const res = await updatePrice(id, price, oldPrice, onSale);
+    if (res && res.success) {
+      showToast(`🏷️ Sale price saved: Rs. ${Number(price).toLocaleString('en-PK')}`);
+    } else {
+      showToast(`❌ Failed to save sale price`);
+    }
   };
 
   return (
@@ -100,7 +120,7 @@ export const AdminDashboardPage = () => {
               Laptop Inventory Dashboard
             </h1>
             <p className="text-xs sm:text-sm text-navy-400 mt-1">
-              Direct image upload (Cloudinary), real-time inventory sync, stock tracking, and pricing management
+              Direct image upload (Cloudinary), persistent MongoDB Atlas storage, stock tracking, and pricing management
             </p>
           </div>
         </div>
@@ -121,11 +141,10 @@ export const AdminDashboardPage = () => {
           onToggleFeatured={handleToggleFeatured}
           onQuickSale={(p) => setQuickSaleProduct(p)}
           categoryFilter={categoryFilter}
-          onCategoryFilterChange={(cat) => setCategoryFilter(cat)}
         />
       </main>
 
-      {/* Add / Edit Product Modal */}
+      {/* Modals */}
       <ProductFormModal
         isOpen={isFormModalOpen}
         onClose={() => setIsFormModalOpen(false)}
@@ -133,23 +152,21 @@ export const AdminDashboardPage = () => {
         editProduct={editingProduct}
       />
 
-      {/* Delete Confirmation Modal */}
       <DeleteConfirmModal
-        isOpen={Boolean(deletingProduct)}
+        isOpen={!!deletingProduct}
+        product={deletingProduct}
         onClose={() => setDeletingProduct(null)}
         onConfirm={handleDeleteConfirm}
-        product={deletingProduct}
       />
 
-      {/* Quick Sale / Discount Modal */}
       <QuickSaleModal
-        isOpen={Boolean(quickSaleProduct)}
+        isOpen={!!quickSaleProduct}
+        product={quickSaleProduct}
         onClose={() => setQuickSaleProduct(null)}
         onSave={handleSaveQuickSale}
-        product={quickSaleProduct}
       />
 
-      {/* Live Action Toast Notification */}
+      {/* Toast notifications */}
       <Toast
         message={toastMessage}
         isVisible={isToastVisible}

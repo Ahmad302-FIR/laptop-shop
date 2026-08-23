@@ -1,18 +1,35 @@
 import { v2 as cloudinary } from 'cloudinary';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 
-dotenv.config();
-
-// Configure Cloudinary with environment variables
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || '',
-  api_key: process.env.CLOUDINARY_API_KEY || '',
-  api_secret: process.env.CLOUDINARY_API_SECRET || '',
-  secure: true
-});
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 /**
- * Check if valid Cloudinary credentials are configured
+ * Configure Cloudinary with environment variables
+ */
+const configureCloudinary = () => {
+  const cloud_name = process.env.CLOUDINARY_CLOUD_NAME || '';
+  const api_key = process.env.CLOUDINARY_API_KEY || '';
+  const api_secret = process.env.CLOUDINARY_API_SECRET || '';
+
+  cloudinary.config({
+    cloud_name,
+    api_key,
+    api_secret,
+    secure: true
+  });
+
+  return { cloud_name, api_key, api_secret };
+};
+
+// Initial config
+configureCloudinary();
+
+/**
+ * Check if valid Cloudinary credentials are configured in environment variables
  */
 export const isCloudinaryConfigured = () => {
   const name = process.env.CLOUDINARY_CLOUD_NAME;
@@ -23,6 +40,9 @@ export const isCloudinaryConfigured = () => {
     name &&
     key &&
     secret &&
+    name.trim() !== '' &&
+    key.trim() !== '' &&
+    secret.trim() !== '' &&
     !name.includes('your_') &&
     !key.includes('your_') &&
     !secret.includes('your_')
@@ -53,7 +73,7 @@ export const extractPublicId = (url) => {
 
     return decodeURIComponent(pathAfterUpload);
   } catch (err) {
-    console.warn('Error extracting Cloudinary public_id:', err.message);
+    console.warn('[Cloudinary] Error extracting public_id:', err.message);
     return null;
   }
 };
@@ -62,9 +82,15 @@ export const extractPublicId = (url) => {
  * Delete an image from Cloudinary by URL or public ID
  */
 export const deleteCloudinaryImage = async (urlOrPublicId) => {
-  if (!urlOrPublicId || !isCloudinaryConfigured()) return;
+  if (!urlOrPublicId) return;
+
+  if (!isCloudinaryConfigured()) {
+    console.warn('[Cloudinary] Cannot delete image: credentials not configured in environment variables.');
+    return;
+  }
 
   try {
+    configureCloudinary();
     const publicId = urlOrPublicId.includes('cloudinary.com')
       ? extractPublicId(urlOrPublicId)
       : urlOrPublicId;
@@ -72,6 +98,7 @@ export const deleteCloudinaryImage = async (urlOrPublicId) => {
     if (!publicId) return;
 
     const result = await cloudinary.uploader.destroy(publicId);
+    console.log(`[Cloudinary] Deleted image: ${publicId} (result: ${result?.result})`);
     return result;
   } catch (error) {
     console.warn(`[Cloudinary Warning] Failed to delete image (${urlOrPublicId}):`, error.message);
@@ -82,12 +109,19 @@ export const deleteCloudinaryImage = async (urlOrPublicId) => {
  * Upload an in-memory buffer to Cloudinary using upload_stream
  * @param {Buffer} buffer - File buffer
  * @param {Object} options - Cloudinary upload options (folder, resource_type, etc.)
+ * @returns {Promise<Object>} Cloudinary upload response containing secure_url
  */
 export const uploadBufferToCloudinary = (buffer, options = {}) => {
   return new Promise((resolve, reject) => {
     if (!isCloudinaryConfigured()) {
-      return reject(new Error('Cloudinary credentials are not configured in environment variables.'));
+      return reject(
+        new Error(
+          'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your backend environment variables.'
+        )
+      );
     }
+
+    configureCloudinary();
 
     const uploadStream = cloudinary.uploader.upload_stream(
       {
@@ -99,8 +133,10 @@ export const uploadBufferToCloudinary = (buffer, options = {}) => {
       },
       (error, result) => {
         if (error) {
+          console.error('[Cloudinary Stream Error]:', error);
           return reject(error);
         }
+        console.log(`[Cloudinary] Uploaded image successfully: ${result.secure_url} (public_id: ${result.public_id})`);
         resolve(result);
       }
     );

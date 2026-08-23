@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { Admin } from '../models/Admin.js';
-import { isDBConnected } from '../config/db.js';
+import { connectDB, isDBConnected } from '../config/db.js';
 
 // Generates signed JWT token
 const generateToken = (id, username) => {
@@ -15,6 +15,10 @@ const generateToken = (id, username) => {
  */
 export const loginAdmin = async (req, res) => {
   try {
+    if (!isDBConnected()) {
+      await connectDB();
+    }
+
     const { username, password } = req.body;
 
     if (!username || !password) {
@@ -25,69 +29,62 @@ export const loginAdmin = async (req, res) => {
     }
 
     const cleanUsername = username.trim().toLowerCase();
-    const envAdminUser = (
-      process.env.ADMIN_USERNAME && process.env.ADMIN_USERNAME !== 'your_admin_username_here'
-        ? process.env.ADMIN_USERNAME
-        : process.env.ADMIN_DEFAULT_USERNAME || 'admin'
-    ).toLowerCase();
 
-    const envAdminPass =
-      process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD !== 'your_admin_password_here'
-        ? process.env.ADMIN_PASSWORD
-        : process.env.ADMIN_DEFAULT_PASSWORD || 'admin12345';
+    // Find admin in MongoDB
+    let admin = await Admin.findOne({ username: cleanUsername });
 
-    if (isDBConnected()) {
-      const admin = await Admin.findOne({ username: cleanUsername });
-      if (!admin) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid username or password'
+    // If database is initialized but default admin doesn't exist yet, auto-create
+    if (!admin) {
+      const defaultUsername = (
+        process.env.ADMIN_USERNAME && process.env.ADMIN_USERNAME !== 'your_admin_username_here'
+          ? process.env.ADMIN_USERNAME
+          : process.env.ADMIN_DEFAULT_USERNAME || 'admin'
+      ).toLowerCase();
+
+      const defaultPassword =
+        process.env.ADMIN_PASSWORD && process.env.ADMIN_PASSWORD !== 'your_admin_password_here'
+          ? process.env.ADMIN_PASSWORD
+          : process.env.ADMIN_DEFAULT_PASSWORD || 'admin12345';
+
+      if (cleanUsername === defaultUsername && password === defaultPassword) {
+        admin = await Admin.create({
+          username: defaultUsername,
+          password: defaultPassword,
+          role: 'admin'
         });
-      }
-
-      const isMatch = await admin.comparePassword(password);
-      if (!isMatch) {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid username or password'
-        });
-      }
-
-      const token = generateToken(admin._id, admin.username);
-
-      return res.status(200).json({
-        success: true,
-        message: 'Admin login successful',
-        token,
-        admin: {
-          id: admin._id,
-          username: admin.username,
-          role: admin.role
-        }
-      });
-    } else {
-      // Fallback if MongoDB is in dev/offline mode: validate against env credentials
-      if (cleanUsername === envAdminUser && password === envAdminPass) {
-        const token = generateToken('dev_admin_id', envAdminUser);
-        return res.status(200).json({
-          success: true,
-          message: 'Admin login successful',
-          token,
-          admin: {
-            id: 'dev_admin_id',
-            username: envAdminUser,
-            role: 'admin'
-          }
-        });
-      } else {
-        return res.status(401).json({
-          success: false,
-          message: 'Invalid username or password'
-        });
+        console.log(`[Auth] Auto-created default admin user: ${defaultUsername}`);
       }
     }
+
+    if (!admin) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid username or password'
+      });
+    }
+
+    const isMatch = await admin.comparePassword(password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid username or password'
+      });
+    }
+
+    const token = generateToken(admin._id, admin.username);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Admin login successful',
+      token,
+      admin: {
+        id: admin._id,
+        username: admin.username,
+        role: admin.role
+      }
+    });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[Login Error]:', error);
     return res.status(500).json({
       success: false,
       message: 'Server error during authentication',
