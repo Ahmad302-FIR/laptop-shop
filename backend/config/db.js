@@ -7,6 +7,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
+// Disable Mongoose query buffering so queries fail fast instead of hanging when disconnected
+mongoose.set('bufferCommands', false);
+
 /**
  * Global cached connection for Serverless environments (Vercel/AWS Lambda)
  * Prevents opening multiple connection pools on warm function invocations.
@@ -21,7 +24,7 @@ export const connectDB = async () => {
   const uri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   if (!uri || uri.includes('your_mongodb_connection_string') || uri.trim() === '') {
-    console.warn('[MongoDB] WARNING: MONGODB_URI / MONGO_URI is not set or contains placeholder in environment variables.');
+    console.warn('[MongoDB] Notice: MONGODB_URI is not configured in environment variables.');
     return false;
   }
 
@@ -32,8 +35,8 @@ export const connectDB = async () => {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
-      serverSelectionTimeoutMS: 10000,
-      connectTimeoutMS: 10000
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000
     };
 
     cached.promise = mongoose
@@ -54,7 +57,7 @@ export const connectDB = async () => {
     return cached.conn;
   } catch (e) {
     cached.promise = null;
-    console.error(`[MongoDB] Await connection failed: ${e.message}`);
+    console.error(`[MongoDB] Connection attempt failed: ${e.message}`);
     return false;
   }
 };
