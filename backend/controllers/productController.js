@@ -1,6 +1,7 @@
 import { Product } from '../models/Product.js';
 import { connectDB, isDBConnected } from '../config/db.js';
 import { deleteCloudinaryImage } from '../config/cloudinary.js';
+import { initialProducts } from '../utils/initialProducts.js';
 
 /**
  * Helper to ensure MongoDB connection is ready before running queries
@@ -10,7 +11,7 @@ const ensureDatabase = async () => {
     const connected = await connectDB();
     if (!connected) {
       const err = new Error(
-        'Database connection unavailable. Please ensure MONGODB_URI / MONGO_URI is properly configured.'
+        'MongoDB connection unavailable. Please add MONGODB_URI to your Vercel Project Settings (Environment Variables) and allow 0.0.0.0/0 in MongoDB Atlas.'
       );
       err.status = 503;
       throw err;
@@ -24,70 +25,100 @@ const ensureDatabase = async () => {
  */
 export const getProducts = async (req, res) => {
   try {
-    await ensureDatabase();
-
     const { category, search, brand, stock, featured, onSale, sort } = req.query;
-    const query = {};
 
-    // Filter by category
+    const isConnected = isDBConnected() ? true : await connectDB();
+
+    if (isConnected) {
+      const query = {};
+
+      // Filter by category
+      if (category && category !== 'all') {
+        if (category === 'laptops') {
+          query.category = { $ne: 'accessory' };
+        } else {
+          query.category = category.toLowerCase();
+        }
+      }
+
+      // Filter by stock
+      if (stock) {
+        query.stock = stock;
+      }
+
+      // Filter by featured
+      if (featured === 'true') {
+        query.featured = true;
+      }
+
+      // Filter by onSale
+      if (onSale === 'true') {
+        query.onSale = true;
+      }
+
+      // Filter by brand
+      if (brand) {
+        query.brand = new RegExp(brand, 'i');
+      }
+
+      // Search query filter
+      if (search && search.trim() !== '') {
+        const searchRegex = new RegExp(search.trim(), 'i');
+        query.$or = [
+          { name: searchRegex },
+          { brand: searchRegex },
+          { model: searchRegex },
+          { processor: searchRegex },
+          { description: searchRegex }
+        ];
+      }
+
+      // Sorting
+      let sortOption = { dateAdded: -1 };
+      if (sort === 'price-asc') sortOption = { price: 1 };
+      else if (sort === 'price-desc') sortOption = { price: -1 };
+      else if (sort === 'newest') sortOption = { dateAdded: -1 };
+      else if (sort === 'rating') sortOption = { rating: -1 };
+      else if (sort === 'featured') sortOption = { featured: -1, dateAdded: -1 };
+
+      const products = await Product.find(query).sort(sortOption);
+
+      return res.status(200).json({
+        success: true,
+        count: products.length,
+        data: products
+      });
+    }
+
+    // Fallback if MongoDB is not yet configured: provide initial default catalog with notice
+    let list = [...initialProducts];
     if (category && category !== 'all') {
       if (category === 'laptops') {
-        query.category = { $ne: 'accessory' };
+        list = list.filter((p) => p.category !== 'accessory');
       } else {
-        query.category = category.toLowerCase();
+        list = list.filter((p) => p.category?.toLowerCase() === category.toLowerCase());
       }
     }
-
-    // Filter by stock
-    if (stock) {
-      query.stock = stock;
+    if (search) {
+      const q = search.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.brand?.toLowerCase().includes(q) ||
+          p.processor?.toLowerCase().includes(q)
+      );
     }
-
-    // Filter by featured
-    if (featured === 'true') {
-      query.featured = true;
-    }
-
-    // Filter by onSale
-    if (onSale === 'true') {
-      query.onSale = true;
-    }
-
-    // Filter by brand
-    if (brand) {
-      query.brand = new RegExp(brand, 'i');
-    }
-
-    // Search query filter (name, brand, processor, model, description)
-    if (search && search.trim() !== '') {
-      const searchRegex = new RegExp(search.trim(), 'i');
-      query.$or = [
-        { name: searchRegex },
-        { brand: searchRegex },
-        { model: searchRegex },
-        { processor: searchRegex },
-        { description: searchRegex }
-      ];
-    }
-
-    // Sorting
-    let sortOption = { dateAdded: -1 };
-    if (sort === 'price-asc') sortOption = { price: 1 };
-    else if (sort === 'price-desc') sortOption = { price: -1 };
-    else if (sort === 'newest') sortOption = { dateAdded: -1 };
-    else if (sort === 'rating') sortOption = { rating: -1 };
-    else if (sort === 'featured') sortOption = { featured: -1, dateAdded: -1 };
-
-    const products = await Product.find(query).sort(sortOption);
 
     return res.status(200).json({
       success: true,
-      count: products.length,
-      data: products
+      count: list.length,
+      data: list,
+      warning:
+        'MongoDB is not configured in Vercel environment variables. Showing default product catalog.'
     });
   } catch (error) {
     console.error('Error fetching products:', error);
-    return res.status(error.status || 500).json({
+    return res.status(500).json({
       success: false,
       message: error.message || 'Failed to fetch products',
       error: error.message
@@ -101,23 +132,39 @@ export const getProducts = async (req, res) => {
  */
 export const getProductById = async (req, res) => {
   try {
-    await ensureDatabase();
     const { id } = req.params;
+    const isConnected = isDBConnected() ? true : await connectDB();
 
-    const product = await Product.findById(id);
-    if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: `Product with ID ${id} not found`
+    if (isConnected) {
+      const product = await Product.findById(id);
+      if (!product) {
+        return res.status(404).json({
+          success: false,
+          message: `Product with ID ${id} not found`
+        });
+      }
+      return res.status(200).json({
+        success: true,
+        data: product
       });
     }
 
-    return res.status(200).json({
-      success: true,
-      data: product
+    const fallback = initialProducts.find(
+      (p) => String(p.id) === String(id) || String(p._id) === String(id)
+    );
+    if (fallback) {
+      return res.status(200).json({
+        success: true,
+        data: fallback
+      });
+    }
+
+    return res.status(404).json({
+      success: false,
+      message: `Product with ID ${id} not found`
     });
   } catch (error) {
-    return res.status(error.status || 500).json({
+    return res.status(500).json({
       success: false,
       message: 'Error fetching product details',
       error: error.message
@@ -159,7 +206,6 @@ export const createProduct = async (req, res) => {
       keyFeatures
     } = req.body;
 
-    // Validation
     if (!name || !brand || price === undefined || price === null || price === '') {
       return res.status(400).json({
         success: false,
@@ -195,9 +241,12 @@ export const createProduct = async (req, res) => {
       stock: stock === 'sold' ? 'sold' : 'available',
       featured: Boolean(featured),
       onSale: Boolean(onSale) || (oldPrice && Number(oldPrice) > Number(price)),
-      images: Array.isArray(images) && images.length > 0 ? images : [
-        'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'
-      ],
+      images:
+        Array.isArray(images) && images.length > 0
+          ? images
+          : [
+              'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'
+            ],
       description: description ? description.trim() : '',
       keyFeatures: Array.isArray(keyFeatures) ? keyFeatures : [],
       dateAdded: new Date()
@@ -205,11 +254,11 @@ export const createProduct = async (req, res) => {
 
     // Save directly to MongoDB via Product.create
     const product = await Product.create(newProductData);
-    console.log(`[MongoDB] Created new product: "${product.name}" (ID: ${product._id}) with ${product.images.length} images.`);
+    console.log(`[MongoDB] Created new product: "${product.name}" (ID: ${product._id})`);
 
     return res.status(201).json({
       success: true,
-      message: 'Product created successfully and saved to database',
+      message: 'Product created successfully and saved to MongoDB Atlas',
       data: product
     });
   } catch (error) {
@@ -248,7 +297,7 @@ export const updateProduct = async (req, res) => {
     if (!existingProduct) {
       return res.status(404).json({
         success: false,
-        message: `Product with ID ${id} not found`
+        message: `Product with ID ${id} not found in database`
       });
     }
 
@@ -273,7 +322,7 @@ export const updateProduct = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Product updated successfully in database',
+      message: 'Product updated successfully in MongoDB',
       data: product
     });
   } catch (error) {
@@ -299,7 +348,7 @@ export const deleteProduct = async (req, res) => {
     if (!product) {
       return res.status(404).json({
         success: false,
-        message: `Product with ID ${id} not found`
+        message: `Product with ID ${id} not found in database`
       });
     }
 
@@ -317,7 +366,7 @@ export const deleteProduct = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `Product "${product.name}" deleted successfully from database`,
+      message: `Product "${product.name}" deleted successfully from MongoDB`,
       data: { id }
     });
   } catch (error) {
@@ -342,7 +391,7 @@ export const toggleStockStatus = async (req, res) => {
 
     const product = await Product.findById(id);
     if (!product) {
-      return res.status(404).json({ success: false, message: 'Product not found' });
+      return res.status(404).json({ success: false, message: 'Product not found in database' });
     }
 
     product.stock = stock ? stock : product.stock === 'available' ? 'sold' : 'available';
@@ -356,7 +405,7 @@ export const toggleStockStatus = async (req, res) => {
   } catch (error) {
     return res.status(error.status || 500).json({
       success: false,
-      message: 'Failed to toggle stock status',
+      message: error.message || 'Failed to toggle stock status',
       error: error.message
     });
   }
@@ -386,11 +435,15 @@ export const updateProductPrice = async (req, res) => {
     };
 
     const product = await Product.findByIdAndUpdate(id, updates, { new: true });
-    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found in database' });
 
     return res.status(200).json({ success: true, message: 'Price updated in database', data: product });
   } catch (error) {
-    return res.status(error.status || 500).json({ success: false, message: 'Failed to update price', error: error.message });
+    return res.status(error.status || 500).json({
+      success: false,
+      message: error.message || 'Failed to update price',
+      error: error.message
+    });
   }
 };
 
@@ -405,7 +458,7 @@ export const toggleSaleStatus = async (req, res) => {
     const { onSale, oldPrice } = req.body;
 
     const product = await Product.findById(id);
-    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found in database' });
 
     product.onSale = onSale !== undefined ? Boolean(onSale) : !product.onSale;
     if (oldPrice !== undefined) product.oldPrice = oldPrice ? Number(oldPrice) : null;
@@ -413,7 +466,11 @@ export const toggleSaleStatus = async (req, res) => {
 
     return res.status(200).json({ success: true, message: 'Sale status updated in database', data: product });
   } catch (error) {
-    return res.status(error.status || 500).json({ success: false, message: 'Failed to toggle sale', error: error.message });
+    return res.status(error.status || 500).json({
+      success: false,
+      message: error.message || 'Failed to toggle sale',
+      error: error.message
+    });
   }
 };
 
@@ -428,13 +485,17 @@ export const toggleFeaturedStatus = async (req, res) => {
     const { featured } = req.body;
 
     const product = await Product.findById(id);
-    if (!product) return res.status(404).json({ success: false, message: 'Product not found' });
+    if (!product) return res.status(404).json({ success: false, message: 'Product not found in database' });
 
     product.featured = featured !== undefined ? Boolean(featured) : !product.featured;
     await product.save();
 
     return res.status(200).json({ success: true, message: 'Featured status updated in database', data: product });
   } catch (error) {
-    return res.status(error.status || 500).json({ success: false, message: 'Failed to toggle featured', error: error.message });
+    return res.status(error.status || 500).json({
+      success: false,
+      message: error.message || 'Failed to toggle featured',
+      error: error.message
+    });
   }
 };
