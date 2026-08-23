@@ -4,8 +4,9 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { connectDB } from './config/db.js';
+import { connectDB, getDBDiagnostic } from './config/db.js';
 import { seedDatabase } from './utils/seedData.js';
+import { isCloudinaryConfigured } from './config/cloudinary.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 
@@ -65,6 +66,8 @@ app.get('/', (req, res) => {
   res.status(200).json({
     status: 'online',
     service: 'Yasin Wahab Laptop Store API',
+    database: getDBDiagnostic(),
+    cloudinaryConfigured: isCloudinaryConfigured(),
     endpoints: {
       health: '/api/health',
       products: '/api/products',
@@ -78,6 +81,8 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'online',
     service: 'Yasin Wahab Laptop Store API',
+    database: getDBDiagnostic(),
+    cloudinaryConfigured: isCloudinaryConfigured(),
     timestamp: new Date().toISOString()
   });
 });
