@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { connectDB, getDBDiagnostic } from './config/db.js';
 import { seedDatabase } from './utils/seedData.js';
-import { isCloudinaryConfigured } from './config/cloudinary.js';
+import { isCloudinaryConfigured, getCloudinaryDiagnostic } from './config/cloudinary.js';
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 
@@ -67,7 +67,7 @@ app.get('/', (req, res) => {
     status: 'online',
     service: 'Yasin Wahab Laptop Store API',
     database: getDBDiagnostic(),
-    cloudinaryConfigured: isCloudinaryConfigured(),
+    cloudinary: getCloudinaryDiagnostic(),
     endpoints: {
       health: '/api/health',
       products: '/api/products',
@@ -82,7 +82,7 @@ app.get('/api/health', (req, res) => {
     status: 'online',
     service: 'Yasin Wahab Laptop Store API',
     database: getDBDiagnostic(),
-    cloudinaryConfigured: isCloudinaryConfigured(),
+    cloudinary: getCloudinaryDiagnostic(),
     timestamp: new Date().toISOString()
   });
 });

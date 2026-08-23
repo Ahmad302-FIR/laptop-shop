@@ -8,12 +8,22 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
 /**
- * Configure Cloudinary with environment variables
+ * Configure Cloudinary with environment variables (supporting CLOUDINARY_URL or separate keys)
  */
 const configureCloudinary = () => {
-  const cloud_name = process.env.CLOUDINARY_CLOUD_NAME || '';
-  const api_key = process.env.CLOUDINARY_API_KEY || '';
-  const api_secret = process.env.CLOUDINARY_API_SECRET || '';
+  const cloudinaryUrl = process.env.CLOUDINARY_URL;
+
+  if (cloudinaryUrl && !cloudinaryUrl.includes('your_') && cloudinaryUrl.startsWith('cloudinary://')) {
+    cloudinary.config({
+      cloudinary_url: cloudinaryUrl.trim(),
+      secure: true
+    });
+    return;
+  }
+
+  const cloud_name = (process.env.CLOUDINARY_CLOUD_NAME || '').trim();
+  const api_key = (process.env.CLOUDINARY_API_KEY || '').trim();
+  const api_secret = (process.env.CLOUDINARY_API_SECRET || '').trim();
 
   cloudinary.config({
     cloud_name,
@@ -21,8 +31,6 @@ const configureCloudinary = () => {
     api_secret,
     secure: true
   });
-
-  return { cloud_name, api_key, api_secret };
 };
 
 // Initial config
@@ -32,6 +40,11 @@ configureCloudinary();
  * Check if valid Cloudinary credentials are configured in environment variables
  */
 export const isCloudinaryConfigured = () => {
+  const cloudinaryUrl = process.env.CLOUDINARY_URL;
+  if (cloudinaryUrl && !cloudinaryUrl.includes('your_') && cloudinaryUrl.startsWith('cloudinary://')) {
+    return true;
+  }
+
   const name = process.env.CLOUDINARY_CLOUD_NAME;
   const key = process.env.CLOUDINARY_API_KEY;
   const secret = process.env.CLOUDINARY_API_SECRET;
@@ -47,6 +60,25 @@ export const isCloudinaryConfigured = () => {
     !key.includes('your_') &&
     !secret.includes('your_')
   );
+};
+
+export const getCloudinaryDiagnostic = () => {
+  const isConfigured = isCloudinaryConfigured();
+  const hasUrl = Boolean(process.env.CLOUDINARY_URL);
+  const hasName = Boolean(process.env.CLOUDINARY_CLOUD_NAME);
+  const hasKey = Boolean(process.env.CLOUDINARY_API_KEY);
+  const hasSecret = Boolean(process.env.CLOUDINARY_API_SECRET);
+
+  return {
+    isConfigured,
+    mode: hasUrl ? 'CLOUDINARY_URL' : hasName ? 'Individual Keys' : 'Not Set',
+    keysFound: {
+      CLOUDINARY_URL: hasUrl,
+      CLOUDINARY_CLOUD_NAME: hasName,
+      CLOUDINARY_API_KEY: hasKey,
+      CLOUDINARY_API_SECRET: hasSecret
+    }
+  };
 };
 
 /**
@@ -116,7 +148,7 @@ export const uploadBufferToCloudinary = (buffer, options = {}) => {
     if (!isCloudinaryConfigured()) {
       return reject(
         new Error(
-          'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in your backend environment variables.'
+          'Cloudinary is not configured. Please set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET (or CLOUDINARY_URL) in your backend environment variables.'
         )
       );
     }
