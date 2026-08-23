@@ -18,15 +18,21 @@ export const setToken = (token) => localStorage.setItem(TOKEN_KEY, token);
 export const removeToken = () => localStorage.removeItem(TOKEN_KEY);
 
 /**
- * Universal JSON fetch helper with JWT bearer authorization
+ * Universal fetch helper with JWT bearer authorization and multipart/FormData support
  */
 export const fetchApi = async (endpoint, options = {}) => {
   const token = getToken();
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
     Accept: 'application/json',
     ...(options.headers || {})
   };
+
+  // Only set application/json when not sending multipart FormData
+  if (!isFormData && !headers['Content-Type']) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -58,14 +64,21 @@ export const fetchApi = async (endpoint, options = {}) => {
   }
 };
 
+const formatBody = (body) => {
+  if (typeof FormData !== 'undefined' && body instanceof FormData) {
+    return body;
+  }
+  return typeof body === 'object' && body !== null ? JSON.stringify(body) : body;
+};
+
 export const api = {
   get: (endpoint, headers) => fetchApi(endpoint, { method: 'GET', headers }),
   post: (endpoint, body, headers) =>
-    fetchApi(endpoint, { method: 'POST', body: JSON.stringify(body), headers }),
+    fetchApi(endpoint, { method: 'POST', body: formatBody(body), headers }),
   put: (endpoint, body, headers) =>
-    fetchApi(endpoint, { method: 'PUT', body: JSON.stringify(body), headers }),
+    fetchApi(endpoint, { method: 'PUT', body: formatBody(body), headers }),
   patch: (endpoint, body, headers) =>
-    fetchApi(endpoint, { method: 'PATCH', body: JSON.stringify(body), headers }),
+    fetchApi(endpoint, { method: 'PATCH', body: formatBody(body), headers }),
   delete: (endpoint, headers) => fetchApi(endpoint, { method: 'DELETE', headers })
 };
 

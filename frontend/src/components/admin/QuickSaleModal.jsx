@@ -43,35 +43,35 @@ export const QuickSaleModal = ({ isOpen, onClose, onSave, product }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-navy-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-navy-900 border border-navy-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+        <div className="flex items-center justify-between border-b border-navy-800 pb-3">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <div className="p-2 rounded-xl bg-accent-500/15 text-accent-400 border border-accent-500/30">
               <Tag className="w-5 h-5" />
             </div>
             <div>
               <h3 className="text-base font-bold text-white">Promotional Sale / Discount</h3>
-              <p className="text-xs text-slate-400">Configure sale badge and price reduction</p>
+              <p className="text-xs text-navy-400">Configure sale badge and price reduction</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800"
+            className="p-1.5 rounded-lg text-navy-400 hover:text-white hover:bg-navy-800"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="text-xs text-slate-300 bg-slate-800/60 p-3 rounded-xl border border-slate-700/60">
+        <div className="text-xs text-navy-300 bg-navy-950 p-3.5 rounded-xl border border-navy-800">
           <p className="font-bold text-white truncate">{product.name}</p>
-          <p className="text-slate-400 mt-0.5">Original listing price: Rs. {Number(product.price).toLocaleString('en-PK')}</p>
+          <p className="text-navy-400 mt-0.5">Original listing price: Rs. {Number(product.price).toLocaleString('en-PK')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs sm:text-sm">
           <div>
-            <label className="block text-slate-300 font-bold mb-1">
+            <label className="block text-navy-200 font-bold mb-1">
               New Selling Price (Discounted PKR) *
             </label>
             <input
@@ -79,12 +79,12 @@ export const QuickSaleModal = ({ isOpen, onClose, onSave, product }) => {
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="e.g. 110000"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 font-semibold"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-navy-700 text-white placeholder-navy-500 focus:outline-none focus:border-accent-500 font-bold"
             />
           </div>
 
           <div>
-            <label className="block text-slate-300 font-bold mb-1">
+            <label className="block text-navy-200 font-bold mb-1">
               Original / Crossed-out Price (Old PKR)
             </label>
             <input
@@ -92,7 +92,7 @@ export const QuickSaleModal = ({ isOpen, onClose, onSave, product }) => {
               value={oldPrice}
               onChange={(e) => setOldPrice(e.target.value)}
               placeholder="e.g. 125000"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-navy-950 border border-navy-700 text-white placeholder-navy-500 focus:outline-none focus:border-accent-500"
             />
           </div>
 
@@ -104,29 +104,29 @@ export const QuickSaleModal = ({ isOpen, onClose, onSave, product }) => {
           )}
 
           <div className="pt-1">
-            <label className="flex items-center gap-2.5 cursor-pointer text-slate-300 font-semibold">
+            <label className="flex items-center gap-2.5 cursor-pointer text-navy-200 font-semibold">
               <input
                 type="checkbox"
                 checked={onSale}
                 onChange={(e) => setOnSale(e.target.checked)}
-                className="w-4 h-4 rounded text-amber-500 bg-slate-800 border-slate-700 focus:ring-amber-500"
+                className="w-4 h-4 rounded text-accent-500 bg-navy-950 border-navy-700 focus:ring-accent-500 accent-amber-500"
               />
               <span>Enable "ON SALE" badge on storefront</span>
             </label>
           </div>
 
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+          <div className="flex items-center justify-end gap-3 pt-3 border-t border-navy-800">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700"
+              className="px-4 py-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-navy-300 font-bold text-xs border border-navy-700"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs shadow-lg shadow-amber-600/20 transition-all disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-accent-500 hover:bg-accent-600 text-slate-950 font-black text-xs shadow-lg shadow-accent-500/20 transition-all disabled:opacity-50 active:scale-95"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{isSaving ? 'Saving...' : 'Apply Sale Price'}</span>

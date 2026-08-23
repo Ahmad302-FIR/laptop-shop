@@ -33,7 +33,7 @@ export const HomePage = () => {
   }, [products]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-surface-50">
       {/* 1. Hero Section */}
       <Hero />
 
@@ -45,7 +45,7 @@ export const HomePage = () => {
         title="Featured Laptops"
         subtitle="Hand-picked premium business ultrabooks and high-performance machines with high specs."
         badge="🔥 Trending Picks"
-        badgeColor="text-rose-600 bg-rose-50 border-rose-200"
+        badgeColor="text-accent-500 bg-accent-500/10 border-accent-500/30 font-bold"
         viewAllLink="/laptops"
         viewAllText="Explore All Laptops"
         products={featuredLaptops}
@@ -58,11 +58,11 @@ export const HomePage = () => {
         title="Latest Fresh Arrivals"
         subtitle="Recently imported laptop stock tested and ready for immediate delivery or store pickup."
         badge="🆕 Fresh Import"
-        badgeColor="text-blue-600 bg-blue-50 border-blue-200"
+        badgeColor="text-navy-900 bg-navy-100 border-navy-300 font-bold"
         viewAllLink="/laptops?sort=newest"
         viewAllText="View All New Arrivals"
         products={latestArrivals}
-        bgClass="bg-slate-50"
+        bgClass="bg-surface-50"
         limit={4}
       />
 
@@ -71,7 +71,7 @@ export const HomePage = () => {
         title="Best Deals & Special Offers"
         subtitle="Save big on limited-stock certified laptops with genuine original chargers included."
         badge="⭐ Super Value"
-        badgeColor="text-amber-700 bg-amber-50 border-amber-200"
+        badgeColor="text-amber-700 bg-amber-50 border-amber-200 font-bold"
         viewAllLink="/laptops?sort=discount"
         viewAllText="View All Hot Deals"
         products={bestDeals}
@@ -87,3 +87,5 @@ export const HomePage = () => {
     </div>
   );
 };
+
+export default HomePage;

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Briefcase, GraduationCap, Gamepad2, ArrowLeft } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { filterProducts } from '../utils/filterProducts';
@@ -19,24 +19,24 @@ export const CategoryPage = () => {
       tag: 'Enterprise Grade Reliability',
       icon: Briefcase,
       desc: 'Built with durable aluminum unibody chassis, Intel Core i7 / AMD Ryzen 7 PRO processors, biometric fingerprint security, and long battery life for corporate professionals.',
-      gradient: 'from-slate-950 via-slate-900 to-blue-950',
-      badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+      gradient: 'from-navy-950 via-navy-900 to-navy-950',
+      badgeColor: 'text-accent-400 bg-accent-500/10 border-accent-500/30'
     },
     student: {
       title: 'Student & Budget Laptops',
       tag: 'Reliable Study Companions',
       icon: GraduationCap,
       desc: 'Affordable, rugged laptops optimized for university courses, online lectures, typing assignments, PDF reading, and coding with smooth performance under Rs. 80,000.',
-      gradient: 'from-amber-950 via-slate-900 to-orange-950',
-      badgeColor: 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+      gradient: 'from-navy-950 via-navy-900 to-amber-950',
+      badgeColor: 'text-amber-300 bg-amber-500/10 border-amber-500/30'
     },
     gaming: {
       title: 'Gaming & Workstations',
       tag: 'Extreme Graphics & High Refresh Rates',
       icon: Gamepad2,
       desc: 'Dedicated NVIDIA RTX / GTX graphics, 144Hz high-refresh displays, multi-core Ryzen / Core i7 H-series processors, and Apple M1 Pro Silicon for video editors and gamers.',
-      gradient: 'from-purple-950 via-slate-900 to-indigo-950',
-      badgeColor: 'text-purple-400 bg-purple-500/10 border-purple-500/20'
+      gradient: 'from-navy-950 via-navy-900 to-rose-950',
+      badgeColor: 'text-rose-400 bg-rose-500/10 border-rose-500/30'
     }
   };
 
@@ -45,8 +45,8 @@ export const CategoryPage = () => {
     tag: 'Specialized Category',
     icon: Briefcase,
     desc: 'Browse our curated collection of verified imported machines.',
-    gradient: 'from-slate-950 to-slate-900',
-    badgeColor: 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+    gradient: 'from-navy-950 to-navy-900',
+    badgeColor: 'text-accent-400 bg-accent-500/10 border-accent-500/30'
   };
 
   const [filters, setFilters] = useState({
@@ -111,14 +111,14 @@ export const CategoryPage = () => {
   const IconComponent = currentMeta.icon;
 
   return (
-    <div className="bg-slate-50 min-h-screen py-8 sm:py-12">
+    <div className="bg-surface-50 min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Banner */}
-        <div className={`mb-8 bg-gradient-to-r ${currentMeta.gradient} text-white rounded-3xl p-6 sm:p-10 border border-slate-800 relative overflow-hidden`}>
+        <div className={`mb-8 bg-gradient-to-r ${currentMeta.gradient} text-white rounded-3xl p-6 sm:p-10 border border-navy-800 relative overflow-hidden shadow-card`}>
           <div className="relative z-10 max-w-2xl">
             <Link
               to="/laptops"
-              className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-3 transition-colors"
+              className="inline-flex items-center gap-1 text-xs text-navy-400 hover:text-accent-400 mb-3 transition-colors font-semibold"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to All Laptops</span>
@@ -134,7 +134,7 @@ export const CategoryPage = () => {
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               {currentMeta.title}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-navy-300 mt-2 leading-relaxed font-normal">
               {currentMeta.desc}
             </p>
           </div>
@@ -143,7 +143,7 @@ export const CategoryPage = () => {
         {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+            <div className="sticky top-24 rounded-2xl bg-white border border-navy-200 p-6 shadow-card">
               <FilterSidebar
                 filters={filters}
                 onFilterChange={handleFilterChange}
@@ -186,7 +186,7 @@ export const CategoryPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileDrawerOpen(false)}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-navy-950/70 backdrop-blur-sm"
             />
             <motion.div
               initial={{ x: '100%' }}
@@ -210,3 +210,5 @@ export const CategoryPage = () => {
     </div>
   );
 };
+
+export default CategoryPage;

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Globe, Zap, BatteryCharging, ShieldCheck, PlayCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Globe, Zap, BatteryCharging, PlayCircle } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { filterProducts } from '../utils/filterProducts';
 import { ProductGrid } from '../components/products/ProductGrid';
@@ -60,24 +60,24 @@ export const ChromebooksPage = () => {
   }, [products, filters]);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-8 sm:py-12">
+    <div className="bg-surface-50 min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Banner */}
-        <div className="mb-8 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white rounded-3xl p-6 sm:p-10 border border-emerald-800/40 relative overflow-hidden">
+        <div className="mb-8 bg-gradient-to-r from-navy-950 via-navy-900 to-emerald-950 text-white rounded-3xl p-6 sm:p-10 border border-navy-800 relative overflow-hidden shadow-card">
           <div className="relative z-10 max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20 mb-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 px-3.5 py-1.5 rounded-full border border-emerald-500/30 mb-3">
               <Globe className="w-3.5 h-3.5" />
               <span>Fast • Lightweight • All-Day Battery</span>
             </span>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               Certified Chromebooks
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-navy-300 mt-2 leading-relaxed font-normal">
               Ideal for school students, university assignments, remote work, and internet browsing. Features 10+ hours battery life, Google Play Store app support, and fast 6-second bootup.
             </p>
 
             {/* Quick Benefits row */}
-            <div className="flex flex-wrap gap-4 mt-5 text-xs text-emerald-300 font-medium">
+            <div className="flex flex-wrap gap-4 mt-5 text-xs text-emerald-300 font-bold">
               <span className="flex items-center gap-1">
                 <Zap className="w-3.5 h-3.5 text-emerald-400" /> 6-Second Fast Boot
               </span>
@@ -94,7 +94,7 @@ export const ChromebooksPage = () => {
         {/* Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+            <div className="sticky top-24 rounded-2xl bg-white border border-navy-200 p-6 shadow-card">
               <FilterSidebar
                 filters={filters}
                 onFilterChange={handleFilterChange}
@@ -137,7 +137,7 @@ export const ChromebooksPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileDrawerOpen(false)}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-navy-950/70 backdrop-blur-sm"
             />
             <motion.div
               initial={{ x: '100%' }}
@@ -161,3 +161,5 @@ export const ChromebooksPage = () => {
     </div>
   );
 };
+
+export default ChromebooksPage;

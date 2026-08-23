@@ -7,7 +7,7 @@ export const FeaturedSection = ({
   title,
   subtitle,
   badge,
-  badgeColor = 'text-blue-600 bg-blue-50 border-blue-200',
+  badgeColor = 'text-accent-500 bg-accent-500/10 border-accent-500/30',
   viewAllLink = '/laptops',
   viewAllText = 'View All',
   products = [],
@@ -19,7 +19,7 @@ export const FeaturedSection = ({
   if (displayProducts.length === 0) return null;
 
   return (
-    <section className={`py-16 sm:py-20 border-b border-slate-200/80 ${bgClass}`}>
+    <section className={`py-16 sm:py-20 border-b border-navy-200/80 ${bgClass}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
@@ -29,11 +29,11 @@ export const FeaturedSection = ({
                 {badge}
               </span>
             )}
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-2xl sm:text-3xl font-black text-navy-950 tracking-tight">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl">
+              <p className="text-xs sm:text-sm text-navy-600 mt-1 max-w-xl">
                 {subtitle}
               </p>
             )}
@@ -42,7 +42,7 @@ export const FeaturedSection = ({
           {viewAllLink && (
             <Link
               to={viewAllLink}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-700 hover:underline group shrink-0"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-accent-600 hover:text-accent-700 hover:underline group shrink-0"
             >
               <span>{viewAllText}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -53,10 +53,12 @@ export const FeaturedSection = ({
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {displayProducts.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id || product._id} product={product} />
           ))}
         </div>
       </div>
     </section>
   );
 };
+
+export default FeaturedSection;

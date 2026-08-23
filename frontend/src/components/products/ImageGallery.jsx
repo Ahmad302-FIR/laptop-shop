@@ -24,7 +24,7 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
   return (
     <div className="flex flex-col gap-4">
       {/* Main Image Viewer */}
-      <div className="relative aspect-[4/3] w-full rounded-2xl bg-slate-900 border border-slate-200 overflow-hidden shadow-sm group">
+      <div className="relative aspect-[4/3] w-full rounded-2xl bg-navy-950 border border-navy-800 overflow-hidden shadow-card group">
         <AnimatePresence mode="wait">
           <motion.img
             key={selectedIndex}
@@ -43,10 +43,10 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
         <button
           type="button"
           onClick={() => setIsZoomOpen(true)}
-          className="absolute top-4 right-4 p-2.5 rounded-xl bg-slate-900/80 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-900"
+          className="absolute top-4 right-4 p-2.5 rounded-xl bg-navy-950/85 text-white backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity hover:bg-navy-900 border border-navy-800"
           aria-label="Zoom image"
         >
-          <ZoomIn className="w-4 h-4" />
+          <ZoomIn className="w-4 h-4 text-accent-400" />
         </button>
 
         {/* Next / Previous arrows overlay */}
@@ -55,22 +55,22 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
             <button
               onClick={handlePrev}
               aria-label="Previous image"
-              className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-slate-900 transition-all hover:scale-110"
+              className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-navy-950/80 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-navy-900 border border-navy-800 transition-all hover:scale-110"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-5 h-5 text-accent-400" />
             </button>
             <button
               onClick={handleNext}
               aria-label="Next image"
-              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-slate-900/70 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-slate-900 transition-all hover:scale-110"
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-navy-950/80 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 hover:bg-navy-900 border border-navy-800 transition-all hover:scale-110"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-5 h-5 text-accent-400" />
             </button>
           </>
         )}
 
         {/* Counter Badge */}
-        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-slate-900/80 text-white text-[11px] font-medium backdrop-blur-sm">
+        <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-md bg-navy-950/90 text-white text-[11px] font-bold backdrop-blur-sm border border-navy-800">
           {selectedIndex + 1} / {imageList.length}
         </div>
       </div>
@@ -85,8 +85,8 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
               onClick={() => setSelectedIndex(idx)}
               className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all ${
                 selectedIndex === idx
-                  ? 'border-blue-600 shadow-md ring-2 ring-blue-600/30'
-                  : 'border-slate-200 opacity-70 hover:opacity-100 hover:border-slate-300'
+                  ? 'border-accent-500 shadow-md ring-2 ring-accent-500/30'
+                  : 'border-navy-200 opacity-70 hover:opacity-100 hover:border-navy-400'
               }`}
             >
               <img
@@ -106,7 +106,7 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/95 backdrop-blur-md p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/95 backdrop-blur-md p-4"
           >
             <button
               onClick={() => setIsZoomOpen(false)}
@@ -136,27 +136,27 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
                     className="absolute left-2 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-110"
                     aria-label="Previous image"
                   >
-                    <ChevronLeft className="w-7 h-7" />
+                    <ChevronLeft className="w-7 h-7 text-accent-400" />
                   </button>
                   <button
                     onClick={handleNext}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 text-white hover:bg-white/20 transition-all hover:scale-110"
                     aria-label="Next image"
                   >
-                    <ChevronRight className="w-7 h-7" />
+                    <ChevronRight className="w-7 h-7 text-accent-400" />
                   </button>
                 </>
               )}
             </div>
 
             {/* Bottom thumbnail strip in lightbox */}
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 max-w-full overflow-x-auto px-4 py-2 bg-slate-900/80 rounded-2xl border border-slate-700">
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 max-w-full overflow-x-auto px-4 py-2 bg-navy-900/90 rounded-2xl border border-navy-700">
               {imageList.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setSelectedIndex(idx)}
                   className={`h-12 w-12 rounded-lg overflow-hidden border-2 shrink-0 transition-all ${
-                    selectedIndex === idx ? 'border-blue-400 scale-105' : 'border-transparent opacity-60'
+                    selectedIndex === idx ? 'border-accent-400 scale-105' : 'border-transparent opacity-60'
                   }`}
                 >
                   <img src={img} alt="" className="h-full w-full object-cover" />
@@ -169,3 +169,5 @@ export const ImageGallery = ({ images = [], productName = 'Laptop' }) => {
     </div>
   );
 };
+
+export default ImageGallery;

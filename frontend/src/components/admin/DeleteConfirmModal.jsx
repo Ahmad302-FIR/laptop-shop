@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 
 export const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, product }) => {
   const [isDeleting, setIsDeleting] = useState(false);
@@ -19,30 +19,30 @@ export const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, product }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-navy-950/85 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+      <div className="bg-navy-900 border border-navy-800 rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-5">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 border border-rose-500/20 shrink-0">
+          <div className="p-3 rounded-2xl bg-rose-500/15 text-rose-400 border border-rose-500/30 shrink-0">
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
             <h3 className="text-lg font-bold text-white">Delete Product</h3>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-navy-300 mt-1">
               Are you sure you want to permanently remove <strong className="text-white">"{product.name}"</strong>?
-              This action cannot be undone.
+              This action will also clean up its stored images and cannot be undone.
             </p>
           </div>
         </div>
 
-        <div className="p-3 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center gap-3">
+        <div className="p-3 rounded-xl bg-navy-950 border border-navy-800 flex items-center gap-3">
           <img
             src={product.images?.[0] || 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=200&q=80'}
             alt={product.name}
-            className="w-12 h-12 rounded-lg object-cover bg-slate-900 shrink-0"
+            className="w-12 h-12 rounded-lg object-cover bg-navy-900 border border-navy-800 shrink-0"
           />
           <div className="min-w-0 flex-1">
             <p className="text-xs font-bold text-white truncate">{product.name}</p>
-            <p className="text-[11px] text-slate-400">Rs. {Number(product.price).toLocaleString('en-PK')}</p>
+            <p className="text-[11px] text-accent-400 font-bold">Rs. {Number(product.price).toLocaleString('en-PK')}</p>
           </div>
         </div>
 
@@ -51,7 +51,7 @@ export const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, product }) => {
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition-colors"
+            className="px-4 py-2.5 rounded-xl bg-navy-800 hover:bg-navy-700 text-navy-300 font-bold text-xs border border-navy-700 transition-colors"
           >
             Cancel
           </button>

@@ -11,21 +11,21 @@ export const Badge = ({
   dot = false
 }) => {
   const sizeStyles = {
-    sm: 'text-xs px-2 py-0.5',
-    md: 'text-xs font-medium px-2.5 py-1',
-    lg: 'text-sm font-semibold px-3 py-1.5'
+    sm: 'text-[11px] px-2 py-0.5',
+    md: 'text-xs font-semibold px-2.5 py-1',
+    lg: 'text-sm font-bold px-3 py-1.5'
   };
 
   const variantStyles = {
-    default: 'bg-slate-800 text-slate-200 border border-slate-700',
-    primary: 'bg-blue-600 text-white shadow-sm',
-    accent: 'bg-sky-500/10 text-sky-400 border border-sky-500/30',
-    success: 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 dark:text-emerald-400',
-    warning: 'bg-amber-500/10 text-amber-600 border border-amber-500/30 dark:text-amber-400',
-    danger: 'bg-rose-500/10 text-rose-600 border border-rose-500/30 dark:text-rose-400',
-    discount: 'bg-rose-600 text-white font-bold tracking-wide shadow-sm',
-    condition: 'bg-slate-100 text-slate-800 border border-slate-200 font-semibold',
-    outline: 'bg-transparent text-slate-600 border border-slate-300'
+    default: 'bg-navy-900 text-navy-200 border border-navy-700',
+    primary: 'bg-accent-500 text-slate-950 font-bold shadow-sm',
+    accent: 'bg-accent-500/15 text-accent-400 border border-accent-500/30 font-semibold',
+    success: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-semibold',
+    warning: 'bg-amber-500/15 text-amber-400 border border-amber-500/30 font-semibold',
+    danger: 'bg-rose-500/15 text-rose-400 border border-rose-500/30 font-semibold',
+    discount: 'bg-accent-500 text-slate-950 font-black tracking-wide shadow-sm',
+    condition: 'bg-navy-100 text-navy-800 border border-navy-200 font-semibold',
+    outline: 'bg-transparent text-navy-700 border border-navy-300 font-medium'
   };
 
   return (
@@ -41,7 +41,7 @@ export const Badge = ({
               ? 'bg-emerald-500 animate-pulse'
               : variant === 'danger'
               ? 'bg-rose-500'
-              : 'bg-blue-500'
+              : 'bg-accent-500'
           }`}
         />
       )}
@@ -49,3 +49,5 @@ export const Badge = ({
     </span>
   );
 };
+
+export default Badge;

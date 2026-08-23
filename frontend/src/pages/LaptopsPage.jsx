@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Laptop, Filter, Sparkles } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Laptop } from 'lucide-react';
 import { useProducts } from '../context/ProductsContext';
 import { filterProducts } from '../utils/filterProducts';
 import { ProductGrid } from '../components/products/ProductGrid';
@@ -90,21 +90,21 @@ export const LaptopsPage = () => {
   }, [products, filters]);
 
   return (
-    <div className="bg-slate-50 min-h-screen py-8 sm:py-12">
+    <div className="bg-surface-50 min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb & Header Banner */}
-        <div className="mb-8 bg-slate-900 text-white rounded-3xl p-6 sm:p-10 border border-slate-800 relative overflow-hidden">
-          <div className="absolute top-0 right-0 h-64 w-64 bg-blue-600/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="mb-8 bg-navy-950 text-white rounded-3xl p-6 sm:p-10 border border-navy-800 relative overflow-hidden shadow-card">
+          <div className="absolute top-0 right-0 h-64 w-64 bg-accent-500/10 rounded-full blur-3xl pointer-events-none" />
           
           <div className="relative z-10 max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20 mb-3">
+            <span className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-accent-400 bg-accent-500/10 px-3.5 py-1.5 rounded-full border border-accent-500/30 mb-3">
               <Laptop className="w-3.5 h-3.5" />
               <span>Full Store Catalog</span>
             </span>
             <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
               All Laptops & Ultrabooks
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">
+            <p className="text-xs sm:text-sm text-navy-300 mt-2 leading-relaxed font-normal">
               Explore our complete range of certified imported laptops from HP, Dell, Lenovo, Apple, and Asus. All units come with 100% original hardware, original charger, and 1-month warranty.
             </p>
           </div>
@@ -114,7 +114,7 @@ export const LaptopsPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Desktop Filter Sidebar */}
           <aside className="hidden lg:block lg:col-span-1">
-            <div className="sticky top-24 rounded-2xl bg-white border border-slate-200 p-6 shadow-sm">
+            <div className="sticky top-24 rounded-2xl bg-white border border-navy-200 p-6 shadow-card">
               <FilterSidebar
                 filters={filters}
                 onFilterChange={handleFilterChange}
@@ -161,7 +161,7 @@ export const LaptopsPage = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileDrawerOpen(false)}
-              className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm"
+              className="fixed inset-0 bg-navy-950/70 backdrop-blur-sm"
             />
 
             {/* Drawer Content */}
@@ -187,3 +187,5 @@ export const LaptopsPage = () => {
     </div>
   );
 };
+
+export default LaptopsPage;

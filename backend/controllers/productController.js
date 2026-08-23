@@ -1,6 +1,7 @@
 import { Product } from '../models/Product.js';
 import { isDBConnected } from '../config/db.js';
 import { getMemoryProducts, setMemoryProducts } from '../utils/memoryStore.js';
+import { deleteCloudinaryImage } from '../config/cloudinary.js';
 
 /**
  * Get all products (Public)
@@ -272,17 +273,31 @@ export const updateProduct = async (req, res) => {
     }
 
     if (isDBConnected()) {
-      const product = await Product.findByIdAndUpdate(id, updates, {
-        new: true,
-        runValidators: true
-      });
-
-      if (!product) {
+      // Find existing product to detect removed images
+      const existingProduct = await Product.findById(id);
+      if (!existingProduct) {
         return res.status(404).json({
           success: false,
           message: `Product with ID ${id} not found`
         });
       }
+
+      // If new images list is provided, delete any removed Cloudinary images
+      if (Array.isArray(updates.images) && Array.isArray(existingProduct.images)) {
+        const removedImages = existingProduct.images.filter(
+          (oldUrl) => !updates.images.includes(oldUrl)
+        );
+        for (const removedUrl of removedImages) {
+          deleteCloudinaryImage(removedUrl).catch((err) =>
+            console.warn('Cloudinary delete on edit notice:', err.message)
+          );
+        }
+      }
+
+      const product = await Product.findByIdAndUpdate(id, updates, {
+        new: true,
+        runValidators: true
+      });
 
       return res.status(200).json({
         success: true,
@@ -298,6 +313,18 @@ export const updateProduct = async (req, res) => {
           message: `Product with ID ${id} not found`
         });
       }
+
+      // Cleanup removed images in fallback store
+      const existingProduct = memoryProducts[index];
+      if (Array.isArray(updates.images) && Array.isArray(existingProduct.images)) {
+        const removedImages = existingProduct.images.filter(
+          (oldUrl) => !updates.images.includes(oldUrl)
+        );
+        for (const removedUrl of removedImages) {
+          deleteCloudinaryImage(removedUrl).catch(() => {});
+        }
+      }
+
       memoryProducts[index] = { ...memoryProducts[index], ...updates };
       setMemoryProducts(memoryProducts);
       return res.status(200).json({
@@ -324,13 +351,25 @@ export const deleteProduct = async (req, res) => {
     const { id } = req.params;
 
     if (isDBConnected()) {
-      const product = await Product.findByIdAndDelete(id);
+      const product = await Product.findById(id);
       if (!product) {
         return res.status(404).json({
           success: false,
           message: `Product with ID ${id} not found`
         });
       }
+
+      // Delete all product images from Cloudinary
+      if (Array.isArray(product.images)) {
+        for (const imgUrl of product.images) {
+          deleteCloudinaryImage(imgUrl).catch((err) =>
+            console.warn('Cloudinary delete on remove notice:', err.message)
+          );
+        }
+      }
+
+      await Product.findByIdAndDelete(id);
+
       return res.status(200).json({
         success: true,
         message: `Product "${product.name}" deleted successfully`,
@@ -338,14 +377,22 @@ export const deleteProduct = async (req, res) => {
       });
     } else {
       let memoryProducts = getMemoryProducts();
-      const initialLength = memoryProducts.length;
-      memoryProducts = memoryProducts.filter((p) => String(p.id) !== String(id) && String(p._id) !== String(id));
-      if (memoryProducts.length === initialLength) {
+      const product = memoryProducts.find((p) => String(p.id) === String(id) || String(p._id) === String(id));
+      if (!product) {
         return res.status(404).json({
           success: false,
           message: `Product with ID ${id} not found`
         });
       }
+
+      // Delete all product images from Cloudinary
+      if (Array.isArray(product.images)) {
+        for (const imgUrl of product.images) {
+          deleteCloudinaryImage(imgUrl).catch(() => {});
+        }
+      }
+
+      memoryProducts = memoryProducts.filter((p) => String(p.id) !== String(id) && String(p._id) !== String(id));
       setMemoryProducts(memoryProducts);
       return res.status(200).json({
         success: true,

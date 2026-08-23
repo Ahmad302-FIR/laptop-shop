@@ -11,7 +11,6 @@ import { Toast } from '../../components/common/Toast';
 export const AdminDashboardPage = () => {
   const {
     products,
-    loading,
     addProduct,
     updateProduct,
     deleteProduct,
@@ -55,12 +54,12 @@ export const AdminDashboardPage = () => {
       const id = editingProduct.id || editingProduct._id;
       const res = await updateProduct(id, payload);
       if (res.success) {
-        showToast(`✅ "${payload.name}" updated successfully!`);
+        showToast(`✅ Product updated successfully!`);
       }
     } else {
       const res = await addProduct(payload);
       if (res.success) {
-        showToast(`🎉 "${payload.name}" added to live inventory!`);
+        showToast(`🎉 Product added to live inventory!`);
       }
     }
   };
@@ -88,7 +87,7 @@ export const AdminDashboardPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen bg-navy-950 text-navy-100 flex flex-col">
       {/* Top Admin Navigation */}
       <AdminNavbar />
 
@@ -100,8 +99,8 @@ export const AdminDashboardPage = () => {
             <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
               Laptop Inventory Dashboard
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1">
-              Real-time product catalog synchronization, stock tracking, and promotional management
+            <p className="text-xs sm:text-sm text-navy-400 mt-1">
+              Direct image upload (Cloudinary), real-time inventory sync, stock tracking, and pricing management
             </p>
           </div>
         </div>

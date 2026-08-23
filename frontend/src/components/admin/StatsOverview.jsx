@@ -12,8 +12,8 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       value: stats.total,
       subtitle: 'All items listed',
       icon: Package,
-      color: 'blue',
-      bg: 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+      color: 'accent',
+      bg: 'bg-accent-500/10 border-accent-500/30 text-accent-400'
     },
     {
       id: 'available',
@@ -22,7 +22,7 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       subtitle: 'Ready for shipment',
       icon: CheckCircle2,
       color: 'emerald',
-      bg: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+      bg: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
     },
     {
       id: 'sold',
@@ -31,7 +31,7 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       subtitle: 'Needs restocking',
       icon: XCircle,
       color: 'rose',
-      bg: 'bg-rose-500/10 border-rose-500/20 text-rose-400'
+      bg: 'bg-rose-500/10 border-rose-500/30 text-rose-400'
     },
     {
       id: 'sale',
@@ -40,7 +40,7 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       subtitle: 'Active promotional deals',
       icon: Tag,
       color: 'amber',
-      bg: 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+      bg: 'bg-amber-500/10 border-amber-500/30 text-amber-400'
     },
     {
       id: 'featured',
@@ -49,7 +49,7 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       subtitle: 'Homepage spotlights',
       icon: Star,
       color: 'purple',
-      bg: 'bg-purple-500/10 border-purple-500/20 text-purple-400'
+      bg: 'bg-purple-500/10 border-purple-500/30 text-purple-400'
     },
     {
       id: 'value',
@@ -57,8 +57,8 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
       value: `Rs. ${(stats.totalValue / 100000).toFixed(1)} Lakh`,
       subtitle: `Rs. ${stats.totalValue.toLocaleString('en-PK')}`,
       icon: DollarSign,
-      color: 'indigo',
-      bg: 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400',
+      color: 'accent',
+      bg: 'bg-accent-500/10 border-accent-500/30 text-accent-400',
       nonClickable: true
     }
   ];
@@ -77,8 +77,8 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
             onClick={() => onFilterChange && !card.nonClickable && onFilterChange(card.id)}
             className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between ${
               isSelected
-                ? 'bg-slate-800 border-blue-500 ring-2 ring-blue-500/30 shadow-lg'
-                : 'bg-slate-900/80 border-slate-800 hover:border-slate-700 hover:bg-slate-800/80 shadow-sm'
+                ? 'bg-navy-800 border-accent-500 ring-2 ring-accent-500/30 shadow-lg'
+                : 'bg-navy-900/80 border-navy-800 hover:border-navy-700 hover:bg-navy-800/80 shadow-card'
             } ${card.nonClickable ? 'cursor-default' : 'cursor-pointer active:scale-98'}`}
           >
             <div className="flex items-center justify-between w-full mb-3">
@@ -86,7 +86,7 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
                 <Icon className="w-4 h-4" />
               </div>
               {!card.nonClickable && (
-                <ArrowUpRight className={`w-3.5 h-3.5 text-slate-500 ${isSelected ? 'text-blue-400' : ''}`} />
+                <ArrowUpRight className={`w-3.5 h-3.5 text-navy-500 ${isSelected ? 'text-accent-400' : ''}`} />
               )}
             </div>
 
@@ -94,8 +94,8 @@ export const StatsOverview = ({ onFilterChange, currentFilter }) => {
               <div className="text-xl sm:text-2xl font-black text-white tracking-tight">
                 {card.value}
               </div>
-              <div className="text-xs font-bold text-slate-300 mt-0.5">{card.title}</div>
-              <div className="text-[10px] text-slate-500 mt-0.5 truncate">{card.subtitle}</div>
+              <div className="text-xs font-bold text-navy-200 mt-0.5">{card.title}</div>
+              <div className="text-[10px] text-navy-400 mt-0.5 truncate">{card.subtitle}</div>
             </div>
           </button>
         );

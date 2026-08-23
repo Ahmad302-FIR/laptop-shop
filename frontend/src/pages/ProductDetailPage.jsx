@@ -1,22 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, Link } from 'react-router-dom';
 import {
   ChevronRight,
   ShieldCheck,
-  CheckCircle2,
-  Clock,
   Phone,
   Share2,
   MapPin,
-  Sparkles,
   ArrowLeft,
   Truck,
   Cpu,
   Layers,
   HardDrive,
-  Monitor,
-  Battery
+  Monitor
 } from 'lucide-react';
 import { FaWhatsapp } from 'react-icons/fa';
 import { useProducts } from '../context/ProductsContext';
@@ -31,7 +26,6 @@ import { Toast } from '../components/common/Toast';
 
 export const ProductDetailPage = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { products } = useProducts();
   const [toastMessage, setToastMessage] = useState('');
   const [isToastVisible, setIsToastVisible] = useState(false);
@@ -52,14 +46,14 @@ export const ProductDetailPage = () => {
 
   if (!product) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-slate-50 px-4 text-center">
-        <h2 className="text-2xl font-black text-slate-900 mb-2">Product Not Found</h2>
-        <p className="text-sm text-slate-500 max-w-md mb-6">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-surface-50 px-4 text-center">
+        <h2 className="text-2xl font-black text-navy-950 mb-2">Product Not Found</h2>
+        <p className="text-sm text-navy-500 max-w-md mb-6">
           The laptop model you are looking for might be out of stock or removed.
         </p>
         <Link
           to="/laptops"
-          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold shadow-md transition-all"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent-500 hover:bg-accent-600 text-slate-950 text-sm font-black shadow-md transition-all active:scale-95"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Browse Available Laptops</span>
@@ -74,23 +68,15 @@ export const ProductDetailPage = () => {
     model,
     category,
     processor,
-    generation,
     ram,
     storage,
     display,
-    graphics,
-    battery,
-    os,
     condition,
-    charger,
-    warranty,
     price,
     oldPrice,
     stock = 'available',
     images = [],
-    description,
-    rating = 4.9,
-    reviewsCount = 18
+    description
   } = product;
 
   const isSoldOut = stock === 'sold';
@@ -107,19 +93,19 @@ export const ProductDetailPage = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen py-8 sm:py-12">
+    <div className="bg-surface-50 min-h-screen py-8 sm:py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb navigation */}
-        <nav className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 mb-6 flex-wrap">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link to="/laptops" className="hover:text-blue-600 transition-colors">Laptops</Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <Link to={`/category/${category}`} className="hover:text-blue-600 transition-colors capitalize">
+        <nav className="flex items-center gap-2 text-xs sm:text-sm text-navy-500 mb-6 flex-wrap">
+          <Link to="/" className="hover:text-accent-600 transition-colors font-medium">Home</Link>
+          <ChevronRight className="w-3.5 h-3.5 text-navy-400" />
+          <Link to="/laptops" className="hover:text-accent-600 transition-colors font-medium">Laptops</Link>
+          <ChevronRight className="w-3.5 h-3.5 text-navy-400" />
+          <Link to={`/category/${category}`} className="hover:text-accent-600 transition-colors capitalize font-medium">
             {category}
           </Link>
-          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-900 font-semibold truncate max-w-xs">{name}</span>
+          <ChevronRight className="w-3.5 h-3.5 text-navy-400" />
+          <span className="text-navy-950 font-bold truncate max-w-xs">{name}</span>
         </nav>
 
         {/* Main Product Layout */}
@@ -129,12 +115,12 @@ export const ProductDetailPage = () => {
             <ImageGallery images={images} productName={name} />
 
             {/* Quick in-store availability notice */}
-            <div className="mt-6 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm">
+            <div className="mt-6 p-4 rounded-2xl bg-white border border-navy-200 shadow-card">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                <span className="text-xs font-bold uppercase tracking-wider text-navy-500">
                   Select Branch for Inquiry:
                 </span>
-                <span className="text-xs text-blue-600 font-semibold">
+                <span className="text-xs text-accent-600 font-bold">
                   Physical stock available
                 </span>
               </div>
@@ -147,12 +133,12 @@ export const ProductDetailPage = () => {
                     onClick={() => setSelectedBranch(b.id)}
                     className={`p-2.5 rounded-xl text-left border transition-all ${
                       selectedBranch === b.id
-                        ? 'bg-blue-50/80 border-blue-500 ring-1 ring-blue-500/30'
-                        : 'bg-slate-50 border-slate-200 hover:bg-slate-100'
+                        ? 'bg-amber-500/10 border-accent-500 ring-1 ring-accent-500/30'
+                        : 'bg-surface-50 border-navy-200 hover:bg-navy-50'
                     }`}
                   >
-                    <p className="text-xs font-bold text-slate-900 truncate">{b.name.replace(' Branch', '')}</p>
-                    <p className="text-[10px] text-slate-500 truncate">{b.displayWhatsapp}</p>
+                    <p className="text-xs font-bold text-navy-900 truncate">{b.name.replace(' Branch', '')}</p>
+                    <p className="text-[10px] text-navy-500 truncate">{b.displayWhatsapp}</p>
                   </button>
                 ))}
               </div>
@@ -161,7 +147,7 @@ export const ProductDetailPage = () => {
 
           {/* Right Column: Product Info & Actions Panel */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="rounded-3xl bg-white border border-navy-200 p-6 sm:p-8 shadow-card space-y-6">
               {/* Badges & Share Row */}
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -188,7 +174,7 @@ export const ProductDetailPage = () => {
                   type="button"
                   onClick={handleCopyLink}
                   title="Share product link"
-                  className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="p-2 rounded-xl text-navy-400 hover:text-navy-900 hover:bg-navy-100 transition-colors"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
@@ -196,31 +182,31 @@ export const ProductDetailPage = () => {
 
               {/* Title & Brand */}
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-accent-600">
                   {brand} Certified
                 </span>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1 leading-snug">
+                <h1 className="text-xl sm:text-2xl font-black text-navy-950 tracking-tight mt-1 leading-snug">
                   {name}
                 </h1>
-                <p className="text-xs text-slate-500 mt-1">Model / SKU: {model || name}</p>
+                <p className="text-xs text-navy-400 mt-1">Model / SKU: {model || name}</p>
               </div>
 
               {/* Price Row */}
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-baseline justify-between gap-4">
+              <div className="p-4 rounded-2xl bg-surface-50 border border-navy-200 flex items-baseline justify-between gap-4">
                 <div>
-                  <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                  <div className="text-2xl sm:text-3xl font-black text-navy-950 tracking-tight">
                     {formatPKR(price)}
                   </div>
                   {oldPrice && oldPrice > price && (
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-sm line-through text-slate-400">{formatPKR(oldPrice)}</span>
+                      <span className="text-sm line-through text-navy-400">{formatPKR(oldPrice)}</span>
                       <span className="text-xs font-bold text-rose-600">
                         Save {formatPKR(oldPrice - price)}
                       </span>
                     </div>
                   )}
                 </div>
-                <div className="text-right text-xs text-slate-500 font-medium">
+                <div className="text-right text-xs text-navy-500 font-medium">
                   <div>Net Cash / COD</div>
                   <div className="text-[11px] text-emerald-600 font-bold">Free Charger Included</div>
                 </div>
@@ -228,40 +214,40 @@ export const ProductDetailPage = () => {
 
               {/* Highlight Specs Summary */}
               {category !== 'accessory' && (
-                <div className="grid grid-cols-2 gap-3 text-xs text-slate-700">
+                <div className="grid grid-cols-2 gap-3 text-xs text-navy-700">
                   {processor && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                      <Cpu className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-xl bg-surface-50 border border-navy-100 flex items-start gap-2.5">
+                      <Cpu className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Processor</div>
-                        <div className="font-semibold text-slate-900">{processor}</div>
+                        <div className="text-[10px] text-navy-400 uppercase font-bold">Processor</div>
+                        <div className="font-bold text-navy-900">{processor}</div>
                       </div>
                     </div>
                   )}
                   {ram && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                      <Layers className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-xl bg-surface-50 border border-navy-100 flex items-start gap-2.5">
+                      <Layers className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Memory</div>
-                        <div className="font-semibold text-slate-900">{ram}</div>
+                        <div className="text-[10px] text-navy-400 uppercase font-bold">Memory</div>
+                        <div className="font-bold text-navy-900">{ram}</div>
                       </div>
                     </div>
                   )}
                   {storage && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                      <HardDrive className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-xl bg-surface-50 border border-navy-100 flex items-start gap-2.5">
+                      <HardDrive className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Storage</div>
-                        <div className="font-semibold text-slate-900">{storage}</div>
+                        <div className="text-[10px] text-navy-400 uppercase font-bold">Storage</div>
+                        <div className="font-bold text-navy-900">{storage}</div>
                       </div>
                     </div>
                   )}
                   {display && (
-                    <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-start gap-2.5">
-                      <Monitor className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
+                    <div className="p-3 rounded-xl bg-surface-50 border border-navy-100 flex items-start gap-2.5">
+                      <Monitor className="w-4 h-4 text-accent-500 shrink-0 mt-0.5" />
                       <div>
-                        <div className="text-[10px] text-slate-400 uppercase font-bold">Display</div>
-                        <div className="font-semibold text-slate-900 truncate">{display.split(' ')[0]}</div>
+                        <div className="text-[10px] text-navy-400 uppercase font-bold">Display</div>
+                        <div className="font-bold text-navy-900 truncate">{display.split(' ')[0]}</div>
                       </div>
                     </div>
                   )}
@@ -270,7 +256,7 @@ export const ProductDetailPage = () => {
 
               {/* Description brief */}
               {description && (
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs sm:text-sm text-navy-600 leading-relaxed">
                   {description}
                 </p>
               )}
@@ -287,7 +273,7 @@ export const ProductDetailPage = () => {
                       )}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:underline font-semibold mt-1 inline-block"
+                      className="text-xs text-accent-600 hover:underline font-bold mt-1 inline-block"
                     >
                       Inquire on WhatsApp for similar alternatives &rarr;
                     </a>
@@ -307,30 +293,30 @@ export const ProductDetailPage = () => {
                 <div className="grid grid-cols-2 gap-2.5">
                   <a
                     href={`tel:${targetBranchObj.phone}`}
-                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-all text-center"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-navy-900 hover:bg-navy-800 text-white text-xs font-bold transition-all text-center"
                   >
-                    <Phone className="w-4 h-4 text-blue-400" />
+                    <Phone className="w-4 h-4 text-accent-400" />
                     <span>Call Store</span>
                   </a>
 
                   <Link
                     to="/contact"
-                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition-all text-center"
+                    className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-navy-100 hover:bg-navy-200 text-navy-900 text-xs font-bold transition-all text-center"
                   >
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                    <MapPin className="w-4 h-4 text-accent-600" />
                     <span>Store Directions</span>
                   </Link>
                 </div>
               </div>
 
               {/* Trust badges footer */}
-              <div className="pt-4 border-t border-slate-100 space-y-2 text-xs text-slate-600">
+              <div className="pt-4 border-t border-navy-100 space-y-2 text-xs text-navy-600">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
                   <span><strong>1 Month Checking Warranty</strong> on all hardware components.</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Truck className="w-4 h-4 text-accent-500 shrink-0" />
                   <span><strong>Nationwide Cash on Delivery</strong> via Leopards & TCS Air Cargo.</span>
                 </div>
               </div>
@@ -345,19 +331,19 @@ export const ProductDetailPage = () => {
 
         {/* Related Products Showcase */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-slate-200">
+          <div className="mt-16 pt-12 border-t border-navy-200">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <span className="text-xs font-bold uppercase tracking-wider text-blue-600">
+                <span className="text-xs font-bold uppercase tracking-wider text-accent-600">
                   Recommended For You
                 </span>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mt-1">
+                <h3 className="text-xl sm:text-2xl font-black text-navy-950 tracking-tight mt-1">
                   Similar Laptops in Stock
                 </h3>
               </div>
               <Link
                 to="/laptops"
-                className="text-xs sm:text-sm font-bold text-blue-600 hover:underline"
+                className="text-xs sm:text-sm font-bold text-accent-600 hover:underline"
               >
                 View all &rarr;
               </Link>
@@ -365,7 +351,7 @@ export const ProductDetailPage = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((item) => (
-                <ProductCard key={item.id} product={item} />
+                <ProductCard key={item.id || item._id} product={item} />
               ))}
             </div>
           </div>
@@ -381,3 +367,5 @@ export const ProductDetailPage = () => {
     </div>
   );
 };
+
+export default ProductDetailPage;

@@ -8,9 +8,9 @@ export const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-white">
-        <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-sm font-semibold text-slate-400">Verifying Admin Authorization...</p>
+      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center text-white">
+        <div className="w-10 h-10 border-4 border-accent-500 border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-sm font-bold text-navy-300">Verifying Admin Authorization...</p>
       </div>
     );
   }

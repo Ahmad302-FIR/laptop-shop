@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaWhatsapp, FaTimes, FaMapMarkerAlt, FaCommentDots } from 'react-icons/fa';
+import { FaWhatsapp, FaTimes, FaMapMarkerAlt } from 'react-icons/fa';
 import { branches } from '../../data/branches';
 import { getGeneralWhatsAppLink } from '../../utils/whatsapp';
 
@@ -17,7 +17,7 @@ export const FloatingWhatsApp = () => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="mb-4 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden text-slate-800"
+            className="mb-4 w-80 sm:w-96 rounded-2xl bg-white shadow-2xl border border-navy-200 overflow-hidden text-navy-900"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 to-teal-700 p-4 text-white">
@@ -45,8 +45,8 @@ export const FloatingWhatsApp = () => {
             </div>
 
             {/* Content / Branch Selector */}
-            <div className="p-4 bg-slate-50 space-y-3">
-              <p className="text-xs text-slate-600 font-medium">
+            <div className="p-4 bg-surface-50 space-y-3">
+              <p className="text-xs text-navy-600 font-medium">
                 Choose a branch to chat directly with our sales team:
               </p>
 
@@ -60,7 +60,7 @@ export const FloatingWhatsApp = () => {
                     )}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all group"
+                    className="flex items-center justify-between p-3 rounded-xl bg-white border border-navy-200 hover:border-emerald-500 hover:shadow-md transition-all group"
                   >
                     <div className="flex items-start gap-2.5">
                       <div className="p-2 rounded-lg bg-emerald-50 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors text-sm shrink-0 mt-0.5">
@@ -68,26 +68,26 @@ export const FloatingWhatsApp = () => {
                       </div>
                       <div>
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-xs text-slate-900">{branch.name}</span>
+                          <span className="font-bold text-xs text-navy-950">{branch.name}</span>
                           {branch.isMain && (
-                            <span className="text-[10px] bg-blue-100 text-blue-700 font-bold px-1.5 py-0.2 rounded">
+                            <span className="text-[10px] bg-accent-500 text-slate-950 font-black px-1.5 py-0.2 rounded">
                               Main
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
-                          <FaMapMarkerAlt className="text-[9px] text-slate-400" /> {branch.displayWhatsapp}
+                        <p className="text-[11px] text-navy-500 flex items-center gap-1 mt-0.5">
+                          <FaMapMarkerAlt className="text-[9px] text-accent-500" /> {branch.displayWhatsapp}
                         </p>
                       </div>
                     </div>
-                    <span className="text-xs font-semibold text-emerald-600 group-hover:translate-x-0.5 transition-transform">
+                    <span className="text-xs font-bold text-emerald-600 group-hover:translate-x-0.5 transition-transform">
                       Chat &rarr;
                     </span>
                   </a>
                 ))}
               </div>
 
-              <div className="pt-2 text-center text-[11px] text-slate-500 border-t border-slate-200">
+              <div className="pt-2 text-center text-[11px] text-navy-500 border-t border-navy-200">
                 💬 Need custom specs or bulk order? Message our main desk directly.
               </div>
             </div>
@@ -101,15 +101,17 @@ export const FloatingWhatsApp = () => {
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Open WhatsApp Chat Support"
-        className="flex items-center gap-2.5 rounded-full bg-[#25D366] hover:bg-[#1ebe57] text-white px-4 py-3.5 shadow-xl hover:shadow-2xl transition-all relative group"
+        className="flex items-center gap-2.5 rounded-full bg-[#25D366] hover:bg-[#1ebe57] text-slate-950 px-4 py-3.5 shadow-xl hover:shadow-2xl transition-all relative group font-extrabold"
       >
         <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-emerald-300"></span>
         </span>
         <FaWhatsapp className="text-2xl" />
-        <span className="font-bold text-sm hidden sm:inline-block">Chat on WhatsApp</span>
+        <span className="font-black text-sm hidden sm:inline-block">Chat on WhatsApp</span>
       </motion.button>
     </div>
   );
 };
+
+export default FloatingWhatsApp;

@@ -47,6 +47,51 @@ export const ProductsProvider = ({ children }) => {
     fetchProducts();
   }, [fetchProducts]);
 
+  const parseDataForState = (data) => {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      const obj = {};
+      const newFiles = [];
+      for (const [key, val] of data.entries()) {
+        if (key === 'existingImages') {
+          try {
+            obj.images = JSON.parse(val);
+          } catch (e) {
+            obj.images = [val];
+          }
+        } else if (key === 'keyFeatures') {
+          try {
+            obj.keyFeatures = JSON.parse(val);
+          } catch (e) {
+            obj.keyFeatures = val.split(',').map((s) => s.trim()).filter(Boolean);
+          }
+        } else if (key === 'images') {
+          if (typeof val === 'object' && val.name) {
+            try {
+              newFiles.push(URL.createObjectURL(val));
+            } catch (e) {}
+          } else if (typeof val === 'string') {
+            newFiles.push(val);
+          }
+        } else if (key === 'price' || key === 'oldPrice') {
+          obj[key] = val ? Number(val) : null;
+        } else if (key === 'featured' || key === 'onSale' || key === 'charger') {
+          obj[key] = val === true || val === 'true' || val === '1';
+        } else {
+          obj[key] = val;
+        }
+      }
+      if (!obj.images) obj.images = [];
+      obj.images = [...obj.images, ...newFiles];
+      if (obj.images.length === 0) {
+        obj.images = [
+          'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80'
+        ];
+      }
+      return obj;
+    }
+    return data;
+  };
+
   // Create Product
   const addProduct = async (productData) => {
     try {
@@ -58,8 +103,9 @@ export const ProductsProvider = ({ children }) => {
       return { success: false, message: res.message };
     } catch (err) {
       // Fallback local update if offline
+      const parsed = parseDataForState(productData);
       const mockId = String(Date.now());
-      const localProduct = { id: mockId, _id: mockId, ...productData, dateAdded: new Date() };
+      const localProduct = { id: mockId, _id: mockId, ...parsed, dateAdded: new Date() };
       setProducts((prev) => [localProduct, ...prev]);
       return {
         success: true,
@@ -82,8 +128,9 @@ export const ProductsProvider = ({ children }) => {
       return { success: false, message: res.message };
     } catch (err) {
       // Fallback local update
+      const parsed = parseDataForState(updates);
       setProducts((prev) =>
-        prev.map((p) => (p.id === id || p._id === id ? { ...p, ...updates } : p))
+        prev.map((p) => (p.id === id || p._id === id ? { ...p, ...parsed } : p))
       );
       return { success: true, notice: 'Updated locally' };
     }

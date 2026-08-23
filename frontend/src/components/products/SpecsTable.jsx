@@ -30,7 +30,6 @@ export const SpecsTable = ({ product }) => {
     warranty,
     brand,
     model,
-    category,
     keyFeatures = []
   } = product;
 
@@ -50,16 +49,16 @@ export const SpecsTable = ({ product }) => {
   ];
 
   return (
-    <div className="rounded-2xl bg-white border border-slate-200 shadow-sm overflow-hidden">
+    <div className="rounded-2xl bg-white border border-navy-200 shadow-card overflow-hidden">
       {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-200 bg-slate-50">
+      <div className="flex border-b border-navy-200 bg-surface-50">
         <button
           type="button"
           onClick={() => setActiveTab('specs')}
           className={`flex-1 py-3.5 px-4 text-center text-xs sm:text-sm font-bold transition-all border-b-2 ${
             activeTab === 'specs'
-              ? 'border-blue-600 text-blue-600 bg-white'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-accent-500 text-navy-950 bg-white'
+              : 'border-transparent text-navy-500 hover:text-navy-900'
           }`}
         >
           Technical Specifications
@@ -69,8 +68,8 @@ export const SpecsTable = ({ product }) => {
           onClick={() => setActiveTab('testing')}
           className={`flex-1 py-3.5 px-4 text-center text-xs sm:text-sm font-bold transition-all border-b-2 ${
             activeTab === 'testing'
-              ? 'border-blue-600 text-blue-600 bg-white'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-accent-500 text-navy-950 bg-white'
+              : 'border-transparent text-navy-500 hover:text-navy-900'
           }`}
         >
           25-Point Quality Check
@@ -80,8 +79,8 @@ export const SpecsTable = ({ product }) => {
           onClick={() => setActiveTab('delivery')}
           className={`flex-1 py-3.5 px-4 text-center text-xs sm:text-sm font-bold transition-all border-b-2 ${
             activeTab === 'delivery'
-              ? 'border-blue-600 text-blue-600 bg-white'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-accent-500 text-navy-950 bg-white'
+              : 'border-transparent text-navy-500 hover:text-navy-900'
           }`}
         >
           Warranty & Delivery
@@ -94,14 +93,14 @@ export const SpecsTable = ({ product }) => {
           <div className="space-y-6">
             {/* Key Features List */}
             {keyFeatures.length > 0 && (
-              <div className="p-4 rounded-xl bg-blue-50/70 border border-blue-100">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-blue-900 mb-2.5">
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-accent-500/30">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-navy-950 mb-2.5">
                   Highlights & Features
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {keyFeatures.map((feat, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-xs text-blue-950">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <div key={idx} className="flex items-center gap-2 text-xs text-navy-900 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-accent-600 shrink-0" />
                       <span>{feat}</span>
                     </div>
                   ))}
@@ -110,19 +109,19 @@ export const SpecsTable = ({ product }) => {
             )}
 
             {/* Specs Table Grid */}
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-navy-100">
               {specRows.map((row, idx) => {
                 const Icon = row.icon;
                 return (
                   <div
                     key={idx}
-                    className="grid grid-cols-1 sm:grid-cols-3 py-3 px-2 gap-1 sm:gap-4 hover:bg-slate-50/80 rounded-lg transition-colors"
+                    className="grid grid-cols-1 sm:grid-cols-3 py-3 px-2 gap-1 sm:gap-4 hover:bg-surface-50 rounded-lg transition-colors"
                   >
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-                      <Icon className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                    <div className="flex items-center gap-2 text-xs font-bold text-navy-500">
+                      <Icon className="w-3.5 h-3.5 text-accent-500 shrink-0" />
                       <span>{row.label}</span>
                     </div>
-                    <div className="sm:col-span-2 text-xs sm:text-sm font-medium text-slate-800">
+                    <div className="sm:col-span-2 text-xs sm:text-sm font-medium text-navy-900">
                       {row.value}
                     </div>
                   </div>
@@ -134,7 +133,7 @@ export const SpecsTable = ({ product }) => {
 
         {activeTab === 'testing' && (
           <div className="space-y-4">
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
               <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-1">
                 <ShieldCheck className="w-5 h-5 text-emerald-600" />
                 <span>Certified 25-Point Hardware Diagnostics</span>
@@ -144,7 +143,7 @@ export const SpecsTable = ({ product }) => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-slate-700 pt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-navy-700 pt-2">
               {[
                 'Screen: 0 Dead Pixels & Uniform Brightness',
                 'Keyboard: Every Key Verified via KeyTest Pro',
@@ -157,9 +156,9 @@ export const SpecsTable = ({ product }) => {
                 'Webcam & Dual Microphones Tested on Zoom/Teams',
                 'Thermals & Fan Speed Tested under Full Prime95 Load'
               ].map((item, idx) => (
-                <div key={idx} className="flex items-center gap-2 p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                <div key={idx} className="flex items-center gap-2 p-2.5 rounded-lg bg-surface-50 border border-navy-200">
                   <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span className="font-medium">{item}</span>
+                  <span className="font-semibold">{item}</span>
                 </div>
               ))}
             </div>
@@ -169,28 +168,28 @@ export const SpecsTable = ({ product }) => {
         {activeTab === 'delivery' && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-                  <ShieldCheck className="w-4 h-4 text-blue-600" />
+              <div className="p-4 rounded-xl bg-surface-50 border border-navy-200 space-y-2">
+                <div className="flex items-center gap-2 text-navy-950 font-bold text-sm">
+                  <ShieldCheck className="w-4 h-4 text-accent-500" />
                   <span>Checking Warranty Policy</span>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-navy-600 leading-relaxed">
                   We provide a <strong>1 Month (30 Days) replacement warranty</strong> for any technical issues, plus 6 months free software support. You can test the machine thoroughly at your home or office.
                 </p>
               </div>
 
-              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
-                <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
+              <div className="p-4 rounded-xl bg-surface-50 border border-navy-200 space-y-2">
+                <div className="flex items-center gap-2 text-navy-950 font-bold text-sm">
                   <Truck className="w-4 h-4 text-emerald-600" />
                   <span>Nationwide Safe Delivery</span>
                 </div>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-navy-600 leading-relaxed">
                   Fast 24-48 hours delivery across Pakistan via TCS / Leopards Courier in heavy shock-proof inflatable air bags. Cash on delivery available.
                 </p>
               </div>
             </div>
 
-            <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200/80 text-xs text-blue-900">
+            <div className="p-4 rounded-xl bg-amber-500/10 border border-accent-500/30 text-xs text-navy-950 font-medium">
               <strong>Branch Pickup Available:</strong> You can also visit our branches in Peshawar (Deans Trade Center), Sargodha (Trust Plaza), or Lakki Marwat (Main Bazar) to test and collect your laptop directly.
             </div>
           </div>
@@ -199,3 +198,5 @@ export const SpecsTable = ({ product }) => {
     </div>
   );
 };
+
+export default SpecsTable;

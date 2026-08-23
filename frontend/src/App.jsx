@@ -26,7 +26,7 @@ function App() {
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-900 font-sans selection:bg-blue-600 selection:text-white">
+    <div className="flex flex-col min-h-screen bg-surface-50 text-navy-900 font-sans selection:bg-accent-500 selection:text-navy-950">
       {/* Scroll restoration helper */}
       <ScrollToTop />
 

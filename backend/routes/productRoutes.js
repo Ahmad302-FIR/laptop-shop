@@ -11,6 +11,10 @@ import {
   toggleFeaturedStatus
 } from '../controllers/productController.js';
 import { verifyAdminToken } from '../middleware/authMiddleware.js';
+import {
+  uploadProductImages,
+  processCloudinaryUploads
+} from '../middleware/uploadMiddleware.js';
 
 const router = express.Router();
 
@@ -18,9 +22,23 @@ const router = express.Router();
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 
-// Protected Admin Routes
-router.post('/', verifyAdminToken, createProduct);
-router.put('/:id', verifyAdminToken, updateProduct);
+// Protected Admin Routes (Multipart FormData + Cloudinary Uploads)
+router.post(
+  '/',
+  verifyAdminToken,
+  uploadProductImages,
+  processCloudinaryUploads,
+  createProduct
+);
+
+router.put(
+  '/:id',
+  verifyAdminToken,
+  uploadProductImages,
+  processCloudinaryUploads,
+  updateProduct
+);
+
 router.delete('/:id', verifyAdminToken, deleteProduct);
 
 // Quick Patch Actions
