@@ -14,7 +14,8 @@ import {
   HardDrive,
   Globe,
   MapPin,
-  Mail
+  Mail,
+  Shield
 } from 'lucide-react';
 import { FaWhatsapp, FaFacebook, FaInstagram, FaTiktok, FaYoutube } from 'react-icons/fa';
 import { shopContact } from '../../data/branches';
@@ -195,6 +196,14 @@ export const Navbar = () => {
               <FaWhatsapp className="text-sm" />
               <span>WhatsApp Support</span>
             </a>
+            <span className="hidden sm:inline text-slate-700">|</span>
+            <Link
+              to="/admin/login"
+              className="flex items-center gap-1 text-slate-400 hover:text-blue-400 font-medium transition-colors"
+            >
+              <Shield className="w-3 h-3 text-blue-400" />
+              <span>Admin</span>
+            </Link>
           </div>
         </div>
       </div>
@@ -575,6 +584,15 @@ export const Navbar = () => {
                   <FaWhatsapp className="text-xl" />
                   <span>Chat on WhatsApp ({shopContact.displayWhatsapp || shopContact.primaryPhone})</span>
                 </a>
+                <Link
+                  to="/admin/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 font-bold text-sm border border-blue-500/30 transition-colors"
+                >
+                  <Shield className="w-4 h-4 text-blue-400" />
+                  <span>Admin Portal Login</span>
+                </Link>
+
                 <a
                   href={`tel:${shopContact.primaryPhone}`}
                   className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-sm border border-slate-700 transition-colors"

@@ -239,8 +239,12 @@ export const Footer = () => {
             <a href={getGeneralWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="hover:text-emerald-400 transition-colors">
               WhatsApp Sales
             </a>
-            <Link to="/admin/login" className="text-slate-600 hover:text-slate-400 text-[11px] transition-colors">
-              Admin Login
+            <Link
+              to="/admin/login"
+              className="inline-flex items-center gap-1 text-slate-400 hover:text-blue-400 text-xs font-medium transition-colors"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+              <span>Admin Portal</span>
             </Link>
           </div>
         </div>
